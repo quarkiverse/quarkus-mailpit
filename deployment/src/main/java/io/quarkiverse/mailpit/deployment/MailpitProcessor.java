@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.jboss.logging.Logger;
 import org.testcontainers.utility.DockerImageName;
 
+import io.quarkus.bootstrap.classloading.QuarkusClassLoader;
 import io.quarkus.deployment.IsNormal;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -36,6 +37,10 @@ public class MailpitProcessor {
      */
     static final String DEV_SERVICE_LABEL = "quarkus-dev-service-mailpit";
 
+    static volatile DevServicesResultBuildItem.RunningDevService devService;
+    static volatile MailpitConfig cfg;
+    static volatile boolean first = true;
+
     @BuildStep
     FeatureBuildItem feature() {
         return new FeatureBuildItem(FEATURE);
@@ -52,10 +57,18 @@ public class MailpitProcessor {
             List<DevServicesSharedNetworkBuildItem> devServicesSharedNetworkBuildItem,
             BuildProducer<MailpitDevServicesConfigBuildItem> mailpitBuildItemBuildProducer) {
 
+        if (devService != null) {
+            boolean shouldShutdownTheBroker = !mailpitConfig.equals(cfg);
+            if (!shouldShutdownTheBroker) {
+                return devService.toBuildItem();
+            }
+            shutdown();
+            cfg = null;
+        }
+
         StartupLogCompressor compressor = new StartupLogCompressor(
                 (launchMode.isTest() ? "(test) " : "") + "Mailpit Dev Services Starting:",
                 consoleInstalledBuildItem, loggingSetupBuildItem);
-        DevServicesResultBuildItem.RunningDevService devService;
         try {
             devService = startMailpit(dockerStatusBuildItem, mailpitConfig, devServicesConfig,
                     !devServicesSharedNetworkBuildItem.isEmpty());
@@ -77,6 +90,24 @@ public class MailpitProcessor {
             log.info("Dev Services for Mailpit started.");
             mailpitBuildItemBuildProducer.produce(new MailpitDevServicesConfigBuildItem(devService.getConfig()));
         }
+
+        // Configure the watch dog
+        if (first) {
+            first = false;
+            Runnable closeTask = () -> {
+                if (devService != null) {
+                    shutdown();
+
+                    log.info("Dev Services for Mailpit shut down.");
+                }
+                first = true;
+                devService = null;
+                cfg = null;
+            };
+            QuarkusClassLoader cl = (QuarkusClassLoader) Thread.currentThread().getContextClassLoader();
+            ((QuarkusClassLoader) cl.parent()).addCloseTask(closeTask);
+        }
+        cfg = mailpitConfig;
         return devService.toBuildItem();
     }
 
@@ -110,6 +141,19 @@ public class MailpitProcessor {
                 mailpit.getContainerId(),
                 mailpit::close,
                 mailpit.getExposedConfig());
+    }
+
+    private void shutdown() {
+        if (devService != null) {
+            try {
+                log.info("Dev Services for Mailpit shutting down...");
+                devService.close();
+            } catch (Throwable e) {
+                log.error("Failed to stop the Mailpit server", e);
+            } finally {
+                devService = null;
+            }
+        }
     }
 
 }
