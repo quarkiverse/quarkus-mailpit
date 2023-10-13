@@ -1,0 +1,81 @@
+= Quarkus Mailpit
+
+include::./includes/attributes.adoc[]
+
+A Quarkus extension that lets you utilize https://github.com/axllent/mailpit[Mailpit] as a Dev Service for the Quarkus Mailer.  Mailpit acts as an SMTP server, provides a modern web interface to view & test captured emails, and contains an API for automated integration testing.
+
+Using this service has some obvious advantages when running in dev mode including but not limited to:
+
+* Verify e-mail and their content without a real mail server
+* Prevent accidentally sending a customer an email while developing
+* Use the REST API to verify contents of real send emails and not mocked mail
+
+== Installation
+
+If you want to use this extension, you need to add the `io.quarkiverse.mailpit:quarkus-mailpit` extension first to your build file.
+
+For instance, with Maven, add the following dependency to your POM file:
+
+[source,xml,subs=attributes+]
+----
+<dependency>
+    <groupId>io.quarkiverse.mailpit</groupId>
+    <artifactId>quarkus-mailpit</artifactId>
+    <version>{project-version}</version>
+</dependency>
+----
+
+== Usage
+
+Now that you configured your POM to use the service, now you need to tell your dev mode to send emails to Mailpit by modifying the following properties in your `application.properties`:
+
+[source,properties]
+----
+%dev.quarkus.mailer.host=localhost
+%dev.quarkus.mailer.port=1025
+%dev.quarkus.mailer.mock=false
+----
+
+This will enable the Mailer to send real e-mails that will be intercepted by Mailpit.  Next, add some code that sends an e-mail...
+
+[source,java]
+----
+@Path("/superheroes")
+@ApplicationScoped
+public class SuperheroResource {
+    @Inject
+    Mailer mailer;
+
+    @GET
+    public String villainAlert() {
+        mailer.send(Mail.withText("superheroes@quarkus.io",
+                "WARNING: Super Villain Alert",
+                "Lex Luthor has been seen in Gotham City!"));
+
+        return "Email sent!";
+    }
+}
+----
+
+Simply run your application with `mvn quarkus:dev` and execute your code. Browse to the Dev UI to see this Mailpit card under Extensions:
+
+image::mailpit-card.png[Mailpit DevUI Card]
+
+You can also inspect the container image that was started under Dev Services:
+
+image::mailpit-devservice.png[Mailpit Dev Service]
+
+Click on the "Mailpit UI" link to then see the UI with all your captured e-mails.
+
+image::mailpit-ui.png[Mailpit User Interface]
+
+== Testing
+
+Mailpit ships with https://github.com/axllent/mailpit/blob/develop/docs/apiv1/README.md[REST APIs] that allow you to query, inspect, mark read, or delete e-mails from the running instance.
+
+
+
+[[extension-configuration-reference]]
+== Extension Configuration Reference
+
+include::includes/quarkus-mailpit.adoc[leveloffset=+1, opts=optional]

@@ -1,0 +1,5 @@
+name: quarkus-mailpit
+title: Quarkus Mailpit
+version: dev
+nav:
+  - modules/ROOT/nav.adoc
