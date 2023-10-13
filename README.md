@@ -6,6 +6,9 @@
 <br>
 
 [![Version](https://img.shields.io/maven-central/v/io.quarkiverse.mailpit/quarkus-mailpit?logo=apache-maven&style=flat-square)](https://search.maven.org/artifact/io.quarkiverse.mailpit/quarkus-mailpit)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
+[![Build](https://github.com/quarkiverse/quarkus-mailpit/actions/workflows/build.yml/badge.svg)](https://github.com/quarkiverse/quarkus-mailpit/actions/workflows/build.yml)
+
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
