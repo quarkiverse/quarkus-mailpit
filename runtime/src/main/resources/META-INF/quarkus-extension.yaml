@@ -9,6 +9,8 @@ metadata:
     - "testing"
   categories:
     - "testing"
+  config:
+    - "quarkus.mailpit."
   status: "stable"
   guide: "https://quarkiverse.github.io/quarkiverse-docs/quarkus-mailpit/dev/"
   icon-url: "https://raw.githubusercontent.com/axllent/mailpit/develop/server/ui/mailpit.svg"
