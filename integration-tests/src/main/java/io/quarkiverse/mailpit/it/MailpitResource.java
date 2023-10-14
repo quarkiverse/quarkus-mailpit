@@ -16,6 +16,8 @@
 */
 package io.quarkiverse.mailpit.it;
 
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -31,12 +33,26 @@ public class MailpitResource {
     @Inject
     Mailer mailer;
 
+    @Path("/alert")
     @GET
-    public String sendMail() {
+    public String villainAlert() {
         mailer.send(Mail.withText("superheroes@quarkus.io",
                 "WARNING: Super Villain Alert",
                 "Lex Luthor has been seen in Gotham City!"));
 
         return "Email sent!";
+    }
+
+    @Path("/from")
+    @GET
+    public String from() {
+        Mail m = new Mail();
+        m.setFrom("info@melloware.com");
+        m.setTo(List.of("quarkus@quarkus.io"));
+        m.setText("A simple email sent from a Quarkus application.");
+        m.setSubject("Ahoy from Quarkus");
+        mailer.send(m);
+
+        return String.format("Sent from %s", m.getFrom());
     }
 }

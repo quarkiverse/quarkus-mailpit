@@ -13,9 +13,18 @@ public class MailpitResourceTest {
     @Test
     public void testSendEmailEndpoint() {
         given()
-                .when().get("/mailpit")
+                .when().get("/mailpit/alert")
                 .then()
                 .statusCode(200)
                 .body(is("Email sent!"));
+    }
+
+    @Test
+    public void testCustomFrom() {
+        given()
+                .when().get("/mailpit/from")
+                .then()
+                .statusCode(200)
+                .body(is("Sent from info@melloware.com"));
     }
 }
