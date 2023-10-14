@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jboss.logging.Logger;
-import org.testcontainers.utility.DockerImageName;
 
 import io.quarkus.bootstrap.classloading.QuarkusClassLoader;
 import io.quarkus.deployment.IsNormal;
@@ -130,10 +129,7 @@ public class MailpitProcessor {
             return null;
         }
 
-        final MailpitContainer mailpit = new MailpitContainer(
-                DockerImageName.parse(mailpitConfig.imageName)
-                        .asCompatibleSubstituteFor(MailpitConfig.DEFAULT_IMAGE),
-                useSharedNetwork);
+        final MailpitContainer mailpit = new MailpitContainer(mailpitConfig, useSharedNetwork);
         devServicesConfig.timeout.ifPresent(mailpit::withStartupTimeout);
         mailpit.start();
 

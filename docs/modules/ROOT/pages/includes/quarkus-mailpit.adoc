@@ -43,4 +43,21 @@ endif::add-copy-button-to-env-var[]
 --|string 
 |`axllent/mailpit`
 
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mailpit_quarkus.mailpit.verbose]]`link:#quarkus-mailpit_quarkus.mailpit.verbose[quarkus.mailpit.verbose]`
+
+
+[.description]
+--
+Flag to control if verbose logging of Mailpit container is requested.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MAILPIT_VERBOSE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MAILPIT_VERBOSE+++`
+endif::add-copy-button-to-env-var[]
+--|boolean 
+|`true`
+
 |===

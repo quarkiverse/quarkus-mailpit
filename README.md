@@ -84,6 +84,12 @@ Then inspect your e-mails from your running application in the Dev UI:
 
 ![Mailpit UI](./docs/modules/ROOT/assets/images/mailpit-ui.png)
 
+## Logging
+
+You can view all of Mailpit's container logs right in the DevUI log area to debug all messages and errors from Mailpit.
+
+![Mailpit Logs](./docs/modules/ROOT/assets/images/mailpit-logs.png)
+
 ## 🧑‍💻 Contributing
 
 - Contribution is the best way to support and get involved in community!

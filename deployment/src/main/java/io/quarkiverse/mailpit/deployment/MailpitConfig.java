@@ -32,4 +32,10 @@ public class MailpitConfig {
     @ConfigItem(defaultValue = DEFAULT_IMAGE)
     public String imageName;
 
+    /**
+     * Flag to control if verbose logging of Mailpit container is requested.
+     */
+    @ConfigItem(defaultValue = "true")
+    public boolean verbose;
+
 }

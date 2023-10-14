@@ -9,8 +9,10 @@ import io.quarkus.deployment.IsDevelopment;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.devui.spi.page.CardPageBuildItem;
+import io.quarkus.devui.spi.page.FooterPageBuildItem;
 import io.quarkus.devui.spi.page.Page;
 import io.quarkus.devui.spi.page.PageBuilder;
+import io.quarkus.devui.spi.page.WebComponentPageBuilder;
 
 /**
  * Dev UI card for displaying important details such Mailpit embedded UI.
@@ -19,7 +21,8 @@ public class MailpitDevUIProcessor {
 
     @BuildStep(onlyIf = IsDevelopment.class)
     void createVersion(BuildProducer<CardPageBuildItem> cardPageBuildItemBuildProducer,
-            Optional<MailpitDevServicesConfigBuildItem> configProps) {
+            Optional<MailpitDevServicesConfigBuildItem> configProps,
+            BuildProducer<FooterPageBuildItem> footerProducer) {
         if (configProps.isPresent()) {
             Map<String, String> config = configProps.get().getConfig();
             final CardPageBuildItem card = new CardPageBuildItem();
@@ -44,8 +47,15 @@ public class MailpitDevUIProcessor {
             }
 
             card.setCustomCard("qwc-mailpit-card.js");
-
             cardPageBuildItemBuildProducer.produce(card);
+
+            // Mailpit Container Log Console
+            WebComponentPageBuilder mailLogPageBuilder = Page.webComponentPageBuilder()
+                    .icon("font-awesome-solid:envelope")
+                    .title("Mailer")
+                    .componentLink("qwc-mailpit-log.js");
+
+            footerProducer.produce(new FooterPageBuildItem(mailLogPageBuilder));
         }
     }
 }

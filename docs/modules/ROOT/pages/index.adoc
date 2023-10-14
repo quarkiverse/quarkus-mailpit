@@ -69,6 +69,12 @@ Click on the "Mailpit UI" link to then see the UI with all your captured e-mails
 
 image::mailpit-ui.png[Mailpit User Interface]
 
+== Logging
+
+You can view all of Mailpit's container logs right in the DevUI log area to debug all messages and errors from Mailpit.
+
+image::mailpit-logs.png[Mailpit Logs]
+
 == Testing
 
 Mailpit ships with https://github.com/axllent/mailpit/blob/develop/docs/apiv1/README.md[REST APIs] that allow you to query, inspect, mark read, or delete e-mails from the running instance.
