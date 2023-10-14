@@ -8,7 +8,7 @@
   </parent>
   <groupId>io.quarkiverse.mailpit</groupId>
   <artifactId>quarkus-mailpit-parent</artifactId>
-  <version>999-SNAPSHOT</version>
+  <version>0.0.2</version>
   <packaging>pom</packaging>
   <name>Quarkus Mailpit - Parent</name>
   <description>Mailpit is an email testing tool that acts as both an SMTP server, and provides a web interface to view all captured emails.</description>
@@ -21,7 +21,7 @@
     <connection>scm:git:git@github.com:quarkiverse/quarkus-mailpit.git</connection>
     <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-mailpit.git</developerConnection>
     <url>https://github.com/quarkiverse/quarkus-mailpit</url>
-    <tag>HEAD</tag>
+    <tag>0.0.2</tag>
   </scm>
   <properties>
     <compiler-plugin.version>3.11.0</compiler-plugin.version>
