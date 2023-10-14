@@ -36,9 +36,12 @@ public class MailpitResource {
     @Path("/alert")
     @GET
     public String villainAlert() {
-        mailer.send(Mail.withText("superheroes@quarkus.io",
-                "WARNING: Super Villain Alert",
-                "Lex Luthor has been seen in Gotham City!"));
+        Mail m = new Mail();
+        m.setFrom("admin@hallofjustice.net");
+        m.setTo(List.of("superheroes@quarkus.io"));
+        m.setText("Lex Luthor has been seen in Gotham City!");
+        m.setSubject("WARNING: Super Villain Alert");
+        mailer.send(m);
 
         return "Email sent!";
     }
@@ -54,5 +57,18 @@ public class MailpitResource {
         mailer.send(m);
 
         return String.format("Sent from %s", m.getFrom());
+    }
+
+    @Path("/nullfrom")
+    @GET
+    public String nullFrom() {
+        Mail m = new Mail();
+        m.setFrom(null);
+        m.setTo(List.of("quarkus@quarkus.io"));
+        m.setText("A simple email sent from a Quarkus application.");
+        m.setSubject("Ahoy from Quarkus");
+        mailer.send(m);
+
+        return String.format("Sent from nobody", m.getFrom());
     }
 }
