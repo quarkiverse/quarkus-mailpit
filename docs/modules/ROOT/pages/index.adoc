@@ -77,9 +77,34 @@ image::mailpit-logs.png[Mailpit Logs]
 
 == Testing
 
-Mailpit ships with https://github.com/axllent/mailpit/blob/develop/docs/apiv1/README.md[REST APIs] that allow you to query, inspect, mark read, or delete e-mails from the running instance.
+Mailpit ships with https://github.com/axllent/mailpit/blob/develop/docs/apiv1/README.md[REST APIs] that allow you to query, inspect, mark read, or delete e-mails from the running instance.  This extension has wrapped up the API nicely and allows you to query Mailpit to check the emails were sent.
 
+[source,java]
+----
+@QuarkusTest
+@WithMailer
+public class MailpitResourceTest {
 
+    @InjectMailer
+    MailerContext mailbox;
+
+    @Test
+    public void testAlert() throws ApiException {
+        given()
+                .when().get("/mailpit/alert")
+                .then()
+                .statusCode(200)
+                .body(is("Superheroes alerted!!"));
+
+        // look up the mail and assert it
+        Message message = mailbox.findFirst("admin@hallofjustice.net");
+        assertThat(message, notNullValue());
+        assertThat(message.getTo().get(0).getAddress(), is("superheroes@quarkus.io"));
+        assertThat(message.getSubject(), is("WARNING: Super Villain Alert"));
+        assertThat(message.getText(), is("Lex Luthor has been seen in Gotham City!\r\n"));
+    }
+}
+----
 
 [[extension-configuration-reference]]
 == Extension Configuration Reference

@@ -43,7 +43,7 @@ public class MailpitResource {
         m.setSubject("WARNING: Super Villain Alert");
         mailer.send(m);
 
-        return "Email sent!";
+        return "Superheroes alerted!!";
     }
 
     @Path("/from")

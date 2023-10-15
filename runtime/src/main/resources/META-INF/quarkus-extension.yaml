@@ -2,6 +2,7 @@ name: "Mailpit"
 artifact: ${project.groupId}:${project.artifactId}:${project.version}
 metadata:
   short-name: "mailpit"
+  type: "test"
   keywords:
     - "smtp"
     - "email"

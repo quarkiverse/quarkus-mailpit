@@ -1,0 +1,1409 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "OpenAPI 2.0 documentation for [Mailpit](https://github.com/axllent/mailpit).",
+    "title": "Mailpit API",
+    "contact": {
+      "name": "GitHub",
+      "url": "https://github.com/axllent/mailpit"
+    },
+    "license": {
+      "name": "MIT license",
+      "url": "https://github.com/axllent/mailpit/blob/develop/LICENSE"
+    },
+    "version": "v1"
+  },
+  "paths": {
+    "/api/v1/info": {
+      "get": {
+        "description": "Returns basic runtime information, message totals and latest release version.",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "application"
+        ],
+        "summary": "Get application information",
+        "operationId": "AppInformation",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/InfoResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/message/{ID}": {
+      "get": {
+        "description": "Returns the summary of a message, marking the message as read.",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "message"
+        ],
+        "summary": "Get message summary",
+        "operationId": "Message",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Database ID",
+            "name": "ID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message",
+            "schema": {
+              "$ref": "#/definitions/Message"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/message/{ID}/headers": {
+      "get": {
+        "description": "Returns the message headers as an array.",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "message"
+        ],
+        "summary": "Get message headers",
+        "operationId": "Headers",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Database ID",
+            "name": "ID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MessageHeaders",
+            "schema": {
+              "$ref": "#/definitions/MessageHeaders"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/message/{ID}/html-check": {
+      "get": {
+        "description": "Returns the summary of the message HTML checker.\n\nNOTE: This feature is currently in beta and is documented for reference only.\nPlease do not integrate with it (yet) as there may be changes.",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Other"
+        ],
+        "summary": "HTML check (beta)",
+        "operationId": "HTMLCheckResponse",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Database ID",
+            "name": "ID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTMLCheckResponse",
+            "schema": {
+              "$ref": "#/definitions/HTMLCheckResponse"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/message/{ID}/link-check": {
+      "get": {
+        "description": "Returns the summary of the message Link checker.\n\nNOTE: This feature is currently in beta and is documented for reference only.\nPlease do not integrate with it (yet) as there may be changes.",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Other"
+        ],
+        "summary": "Link check (beta)",
+        "operationId": "LinkCheckResponse",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Database ID",
+            "name": "ID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "Follow redirects",
+            "name": "follow",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "LinkCheckResponse",
+            "schema": {
+              "$ref": "#/definitions/LinkCheckResponse"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/message/{ID}/part/{PartID}": {
+      "get": {
+        "description": "This will return the attachment part using the appropriate Content-Type.",
+        "produces": [
+          "application/*",
+          "image/*",
+          "text/*"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "message"
+        ],
+        "summary": "Get message attachment",
+        "operationId": "Attachment",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Database ID",
+            "name": "ID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Attachment part ID",
+            "name": "PartID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/BinaryResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/message/{ID}/part/{PartID}/thumb": {
+      "get": {
+        "description": "This will return a cropped 180x120 JPEG thumbnail of an image attachment.\nIf the image is smaller than 180x120 then the image is padded. If the attachment is not an image then a blank image is returned.",
+        "produces": [
+          "image/jpeg"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "message"
+        ],
+        "summary": "Get an attachment image thumbnail",
+        "operationId": "Thumbnail",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Database ID",
+            "name": "ID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Attachment part ID",
+            "name": "PartID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/BinaryResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/message/{ID}/raw": {
+      "get": {
+        "description": "Returns the full email source as plain text.",
+        "produces": [
+          "text/plain"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "message"
+        ],
+        "summary": "Get message source",
+        "operationId": "Raw",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Database ID",
+            "name": "ID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/TextResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/message/{ID}/release": {
+      "post": {
+        "description": "Release a message via a pre-configured external SMTP server..",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "message"
+        ],
+        "summary": "Release message",
+        "operationId": "Release",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Database ID",
+            "name": "ID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Array of email addresses to release message to",
+            "name": "to",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Array of email addresses to release message to",
+              "type": "object",
+              "$ref": "#/definitions/ReleaseMessageRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OKResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/messages": {
+      "get": {
+        "description": "Returns messages from the mailbox ordered from newest to oldest.",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "messages"
+        ],
+        "summary": "List messages",
+        "operationId": "GetMessages",
+        "parameters": [
+          {
+            "type": "integer",
+            "default": 0,
+            "description": "Pagination offset",
+            "name": "start",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 50,
+            "description": "Limit results",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/MessagesSummaryResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      },
+      "put": {
+        "description": "If no IDs are provided then all messages are updated.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "messages"
+        ],
+        "summary": "Set read status",
+        "operationId": "SetReadStatus",
+        "parameters": [
+          {
+            "description": "Database IDs to update",
+            "name": "ids",
+            "in": "body",
+            "schema": {
+              "description": "Database IDs to update",
+              "type": "object",
+              "$ref": "#/definitions/SetReadStatusRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OKResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "If no IDs are provided then all messages are deleted.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "messages"
+        ],
+        "summary": "Delete messages",
+        "operationId": "Delete",
+        "parameters": [
+          {
+            "description": "Database IDs to delete",
+            "name": "ids",
+            "in": "body",
+            "schema": {
+              "description": "Database IDs to delete",
+              "type": "object",
+              "$ref": "#/definitions/DeleteRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OKResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/search": {
+      "get": {
+        "description": "Returns the latest messages matching a search.",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "messages"
+        ],
+        "summary": "Search messages",
+        "operationId": "MessagesSummary",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search query",
+            "name": "query",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "default": 0,
+            "description": "Pagination offset",
+            "name": "start",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 50,
+            "description": "Limit results",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/MessagesSummaryResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes messages matching a search.",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "messages"
+        ],
+        "summary": "Delete messages by search",
+        "operationId": "MessagesSummary",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search query",
+            "name": "query",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OKResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/tags": {
+      "get": {
+        "description": "Returns a JSON array of all unique message tags.",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "tags"
+        ],
+        "summary": "Get all current tags",
+        "operationId": "SetTags",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ArrayResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      },
+      "put": {
+        "description": "To remove all tags from a message, pass an empty tags array.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "tags"
+        ],
+        "summary": "Set message tags",
+        "operationId": "SetTags",
+        "parameters": [
+          {
+            "description": "Database IDs to update",
+            "name": "ids",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Database IDs to update",
+              "type": "object",
+              "$ref": "#/definitions/SetTagsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OKResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/webui": {
+      "get": {
+        "description": "Returns configuration settings for the web UI.\nIntended for web UI only!",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "application"
+        ],
+        "summary": "Get web UI configuration",
+        "operationId": "WebUIConfiguration",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/WebUIConfigurationResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/view/{ID}.html": {
+      "get": {
+        "description": "Renders just the message's HTML part which can be used for UI integration testing.\nAttached inline images are modified to link to the API provided they exist.\nNote that is the message does not contain a HTML part then an 404 error is returned.\n\nThe ID can be set to `latest` to return the latest message.",
+        "produces": [
+          "text/html"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "testing"
+        ],
+        "summary": "Render message HTML part",
+        "operationId": "GetMessageHTML",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Database ID or latest",
+            "name": "ID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/HTMLResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/view/{ID}.txt": {
+      "get": {
+        "description": "Renders just the message's text part which can be used for UI integration testing.\n\nThe ID can be set to `latest` to return the latest message.",
+        "produces": [
+          "text/plain"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "testing"
+        ],
+        "summary": "Render message text part",
+        "operationId": "GetMessageText",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Database ID or latest",
+            "name": "ID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/TextResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Address": {
+      "description": "An address such as \"Barry Gibbs \u003cbg@example.com\u003e\" is represented\nas Address{Name: \"Barry Gibbs\", Address: \"bg@example.com\"}.",
+      "type": "object",
+      "title": "Address represents a single mail address.",
+      "properties": {
+        "Address": {
+          "type": "string"
+        },
+        "Name": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "net/mail"
+    },
+    "AppInformation": {
+      "description": "Response includes the current and latest Mailpit version, database info, and memory usage",
+      "type": "object",
+      "properties": {
+        "Database": {
+          "description": "Database path",
+          "type": "string"
+        },
+        "DatabaseSize": {
+          "description": "Database size in bytes",
+          "type": "integer",
+          "format": "int64"
+        },
+        "LatestVersion": {
+          "description": "Latest Mailpit version",
+          "type": "string"
+        },
+        "Memory": {
+          "description": "Current memory usage in bytes",
+          "type": "integer",
+          "format": "uint64"
+        },
+        "Messages": {
+          "description": "Total number of messages in the database",
+          "type": "integer",
+          "format": "int64"
+        },
+        "Version": {
+          "description": "Current Mailpit version",
+          "type": "string"
+        }
+      },
+      "x-go-name": "appInformation",
+      "x-go-package": "github.com/axllent/mailpit/server/apiv1"
+    },
+    "Attachment": {
+      "description": "Attachment struct for inline and attachments",
+      "type": "object",
+      "properties": {
+        "ContentID": {
+          "description": "Content ID",
+          "type": "string"
+        },
+        "ContentType": {
+          "description": "Content type",
+          "type": "string"
+        },
+        "FileName": {
+          "description": "File name",
+          "type": "string"
+        },
+        "PartID": {
+          "description": "Attachment part ID",
+          "type": "string"
+        },
+        "Size": {
+          "description": "Size in bytes",
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "x-go-package": "github.com/axllent/mailpit/internal/storage"
+    },
+    "DeleteRequest": {
+      "description": "Delete request",
+      "type": "object",
+      "properties": {
+        "ids": {
+          "description": "ids\nin:body",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "IDs"
+        }
+      },
+      "x-go-name": "deleteRequest",
+      "x-go-package": "github.com/axllent/mailpit/server/apiv1"
+    },
+    "HTMLCheckResponse": {
+      "description": "Response represents the HTML check response struct",
+      "type": "object",
+      "properties": {
+        "Platforms": {
+          "description": "All platforms tested, mainly for the web UI",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "Total": {
+          "$ref": "#/definitions/HTMLCheckTotal"
+        },
+        "Warnings": {
+          "description": "List of warnings from tests",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HTMLCheckWarning"
+          }
+        }
+      },
+      "x-go-name": "Response",
+      "x-go-package": "github.com/axllent/mailpit/internal/htmlcheck"
+    },
+    "HTMLCheckResult": {
+      "description": "Result struct",
+      "type": "object",
+      "properties": {
+        "Family": {
+          "description": "Family eg: Outlook, Mozilla Thunderbird",
+          "type": "string"
+        },
+        "Name": {
+          "description": "Friendly name of result, combining family, platform \u0026 version",
+          "type": "string"
+        },
+        "NoteNumber": {
+          "description": "Note number for partially supported if applicable",
+          "type": "string"
+        },
+        "Platform": {
+          "description": "Platform eg: ios, android, windows",
+          "type": "string"
+        },
+        "Support": {
+          "description": "Support [yes, no, partial]",
+          "type": "string"
+        },
+        "Version": {
+          "description": "Family version eg: 4.7.1, 2019-10, 10.3",
+          "type": "string"
+        }
+      },
+      "x-go-name": "Result",
+      "x-go-package": "github.com/axllent/mailpit/internal/htmlcheck"
+    },
+    "HTMLCheckScore": {
+      "description": "Score struct",
+      "type": "object",
+      "properties": {
+        "Found": {
+          "description": "Number of matches in the document",
+          "type": "integer",
+          "format": "int64"
+        },
+        "Partial": {
+          "description": "Total percentage partially supported",
+          "type": "number",
+          "format": "float"
+        },
+        "Supported": {
+          "description": "Total percentage supported",
+          "type": "number",
+          "format": "float"
+        },
+        "Unsupported": {
+          "description": "Total percentage unsupported",
+          "type": "number",
+          "format": "float"
+        }
+      },
+      "x-go-name": "Score",
+      "x-go-package": "github.com/axllent/mailpit/internal/htmlcheck"
+    },
+    "HTMLCheckTotal": {
+      "description": "Total weighted result for all scores",
+      "type": "object",
+      "properties": {
+        "Nodes": {
+          "description": "Total number of HTML nodes detected in message",
+          "type": "integer",
+          "format": "int64"
+        },
+        "Partial": {
+          "description": "Overall percentage partially supported",
+          "type": "number",
+          "format": "float"
+        },
+        "Supported": {
+          "description": "Overall percentage supported",
+          "type": "number",
+          "format": "float"
+        },
+        "Tests": {
+          "description": "Total number of tests done",
+          "type": "integer",
+          "format": "int64"
+        },
+        "Unsupported": {
+          "description": "Overall percentage unsupported",
+          "type": "number",
+          "format": "float"
+        }
+      },
+      "x-go-name": "Total",
+      "x-go-package": "github.com/axllent/mailpit/internal/htmlcheck"
+    },
+    "HTMLCheckWarning": {
+      "description": "Warning represents a failed test",
+      "type": "object",
+      "properties": {
+        "Category": {
+          "description": "Category [css, html]",
+          "type": "string"
+        },
+        "Description": {
+          "description": "Description",
+          "type": "string"
+        },
+        "Keywords": {
+          "description": "Keywords",
+          "type": "string"
+        },
+        "NotesByNumber": {
+          "description": "Notes based on results",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "Results": {
+          "description": "Test results",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HTMLCheckResult"
+          }
+        },
+        "Score": {
+          "$ref": "#/definitions/HTMLCheckScore"
+        },
+        "Slug": {
+          "description": "Slug identifier",
+          "type": "string"
+        },
+        "Tags": {
+          "description": "Tags",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Title": {
+          "description": "Friendly title",
+          "type": "string"
+        },
+        "URL": {
+          "description": "URL to caniemail.com",
+          "type": "string"
+        }
+      },
+      "x-go-name": "Warning",
+      "x-go-package": "github.com/axllent/mailpit/internal/htmlcheck"
+    },
+    "Link": {
+      "description": "Link struct",
+      "type": "object",
+      "properties": {
+        "Status": {
+          "description": "HTTP status definition",
+          "type": "string"
+        },
+        "StatusCode": {
+          "description": "HTTP status code",
+          "type": "integer",
+          "format": "int64"
+        },
+        "URL": {
+          "description": "Link URL",
+          "type": "string"
+        }
+      },
+      "x-go-package": "github.com/axllent/mailpit/internal/linkcheck"
+    },
+    "LinkCheckResponse": {
+      "description": "Response represents the Link check response",
+      "type": "object",
+      "properties": {
+        "Errors": {
+          "description": "Total number of errors",
+          "type": "integer",
+          "format": "int64"
+        },
+        "Links": {
+          "description": "Tested links",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Link"
+          }
+        }
+      },
+      "x-go-name": "Response",
+      "x-go-package": "github.com/axllent/mailpit/internal/linkcheck"
+    },
+    "Message": {
+      "description": "Message data excluding physical attachments",
+      "type": "object",
+      "properties": {
+        "Attachments": {
+          "description": "Message attachments",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Attachment"
+          }
+        },
+        "Bcc": {
+          "description": "Bcc addresses",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Address"
+          }
+        },
+        "Cc": {
+          "description": "Cc addresses",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Address"
+          }
+        },
+        "Date": {
+          "description": "Message date if set, else date received",
+          "type": "string",
+          "format": "date-time"
+        },
+        "From": {
+          "$ref": "#/definitions/Address"
+        },
+        "HTML": {
+          "description": "Message body HTML",
+          "type": "string"
+        },
+        "ID": {
+          "description": "Database ID",
+          "type": "string"
+        },
+        "Inline": {
+          "description": "Inline message attachments",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Attachment"
+          }
+        },
+        "MessageID": {
+          "description": "Message ID",
+          "type": "string"
+        },
+        "ReplyTo": {
+          "description": "ReplyTo addresses",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Address"
+          }
+        },
+        "ReturnPath": {
+          "description": "Return-Path",
+          "type": "string"
+        },
+        "Size": {
+          "description": "Message size in bytes",
+          "type": "integer",
+          "format": "int64"
+        },
+        "Subject": {
+          "description": "Message subject",
+          "type": "string"
+        },
+        "Tags": {
+          "description": "Message tags",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Text": {
+          "description": "Message body text",
+          "type": "string"
+        },
+        "To": {
+          "description": "To addresses",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Address"
+          }
+        }
+      },
+      "x-go-package": "github.com/axllent/mailpit/internal/storage"
+    },
+    "MessageHeaders": {
+      "description": "Message headers",
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "x-go-name": "messageHeaders",
+      "x-go-package": "github.com/axllent/mailpit/server/apiv1"
+    },
+    "MessageSummary": {
+      "description": "MessageSummary struct for frontend messages",
+      "type": "object",
+      "properties": {
+        "Attachments": {
+          "description": "Whether the message has any attachments",
+          "type": "integer",
+          "format": "int64"
+        },
+        "Bcc": {
+          "description": "Bcc addresses",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Address"
+          }
+        },
+        "Cc": {
+          "description": "Cc addresses",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Address"
+          }
+        },
+        "Created": {
+          "description": "Created time",
+          "type": "string",
+          "format": "date-time"
+        },
+        "From": {
+          "$ref": "#/definitions/Address"
+        },
+        "ID": {
+          "description": "Database ID",
+          "type": "string"
+        },
+        "MessageID": {
+          "description": "Message ID",
+          "type": "string"
+        },
+        "Read": {
+          "description": "Read status",
+          "type": "boolean"
+        },
+        "Size": {
+          "description": "Message size in bytes (total)",
+          "type": "integer",
+          "format": "int64"
+        },
+        "Subject": {
+          "description": "Email subject",
+          "type": "string"
+        },
+        "Tags": {
+          "description": "Message tags",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "To": {
+          "description": "To address",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Address"
+          }
+        }
+      },
+      "x-go-package": "github.com/axllent/mailpit/internal/storage"
+    },
+    "MessagesSummary": {
+      "description": "MessagesSummary is a summary of a list of messages",
+      "type": "object",
+      "properties": {
+        "messages": {
+          "description": "Messages summary\nin:body",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MessageSummary"
+          },
+          "x-go-name": "Messages"
+        },
+        "messages_count": {
+          "description": "Total number of messages matching current query",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MessagesCount"
+        },
+        "start": {
+          "description": "Pagination offset",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Start"
+        },
+        "tags": {
+          "description": "All current tags",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Tags"
+        },
+        "total": {
+          "description": "Total number of messages in mailbox",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        },
+        "unread": {
+          "description": "Total number of unread messages in mailbox",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Unread"
+        }
+      },
+      "x-go-package": "github.com/axllent/mailpit/server/apiv1"
+    },
+    "ReleaseMessageRequest": {
+      "description": "Release request",
+      "type": "object",
+      "properties": {
+        "to": {
+          "description": "To\nin:body",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "To"
+        }
+      },
+      "x-go-name": "releaseMessageRequest",
+      "x-go-package": "github.com/axllent/mailpit/server/apiv1"
+    },
+    "SetReadStatusRequest": {
+      "description": "Set read status request",
+      "type": "object",
+      "properties": {
+        "ids": {
+          "description": "ids\nin:body",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "IDs"
+        },
+        "read": {
+          "description": "Read status",
+          "type": "boolean",
+          "x-go-name": "Read"
+        }
+      },
+      "x-go-name": "setReadStatusRequest",
+      "x-go-package": "github.com/axllent/mailpit/server/apiv1"
+    },
+    "SetTagsRequest": {
+      "description": "Set tags request",
+      "type": "object",
+      "properties": {
+        "ids": {
+          "description": "IDs\nin:body",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "IDs"
+        },
+        "tags": {
+          "description": "Tags\nin:body",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Tags"
+        }
+      },
+      "x-go-name": "setTagsRequest",
+      "x-go-package": "github.com/axllent/mailpit/server/apiv1"
+    },
+    "WebUIConfiguration": {
+      "description": "Response includes global web UI settings",
+      "type": "object",
+      "properties": {
+        "DisableHTMLCheck": {
+          "description": "Whether the HTML check has been globally disabled",
+          "type": "boolean"
+        },
+        "MessageRelay": {
+          "description": "Message Relay information",
+          "type": "object",
+          "properties": {
+            "Enabled": {
+              "description": "Whether message relaying (release) is enabled",
+              "type": "boolean"
+            },
+            "RecipientAllowlist": {
+              "description": "Allowlist of accepted recipients",
+              "type": "string"
+            },
+            "ReturnPath": {
+              "description": "Enforced Return-Path (if set) for relay bounces",
+              "type": "string"
+            },
+            "SMTPServer": {
+              "description": "The configured SMTP server address",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "x-go-name": "webUIConfiguration",
+      "x-go-package": "github.com/axllent/mailpit/server/apiv1"
+    }
+  },
+  "responses": {
+    "ArrayResponse": {
+      "description": "Plain JSON array response",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "BinaryResponse": {
+      "description": "Binary data response inherits the attachment's content type"
+    },
+    "ErrorResponse": {
+      "description": "Error response"
+    },
+    "HTMLResponse": {
+      "description": "HTML response"
+    },
+    "InfoResponse": {
+      "description": "Application information",
+      "schema": {
+        "$ref": "#/definitions/AppInformation"
+      },
+      "headers": {
+        "Body": {
+          "description": "Application information"
+        }
+      }
+    },
+    "MessagesSummaryResponse": {
+      "description": "Message summary",
+      "schema": {
+        "$ref": "#/definitions/MessagesSummary"
+      }
+    },
+    "OKResponse": {
+      "description": "Plain text \"ok\" response"
+    },
+    "TextResponse": {
+      "description": "Plain text response"
+    },
+    "WebUIConfigurationResponse": {
+      "description": "Web UI configuration",
+      "schema": {
+        "$ref": "#/definitions/WebUIConfiguration"
+      },
+      "headers": {
+        "Body": {
+          "description": "Web UI configuration settings"
+        }
+      }
+    }
+  }
+}

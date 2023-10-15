@@ -75,7 +75,7 @@ public class SuperheroResource {
                 "WARNING: Super Villain Alert",
                 "Lex Luthor has been seen in Gotham City!"));
 
-        return "Email sent!";
+        return "Superheroes alerted!!";
     }
 }
 ```
@@ -89,6 +89,36 @@ Then inspect your e-mails from your running application in the Dev UI:
 You can view all of Mailpit's container logs right in the DevUI log area to debug all messages and errors from Mailpit.
 
 ![Mailpit Logs](./docs/modules/ROOT/assets/images/mailpit-logs.png)
+
+## Testing
+
+Running your integration tests you can inspect the results of any mail capture by Mailpit using our test framework.  For example to test the example email above the test would look like this:
+
+```java
+@QuarkusTest
+@WithMailer
+public class MailpitResourceTest {
+
+    @InjectMailer
+    MailerContext mailbox;
+
+    @Test
+    public void testAlert() throws ApiException {
+        given()
+                .when().get("/mailpit/alert")
+                .then()
+                .statusCode(200)
+                .body(is("Superheroes alerted!!"));
+
+        // look up the mail and assert it
+        Message message = mailbox.findFirst("admin@hallofjustice.net");
+        assertThat(message, notNullValue());
+        assertThat(message.getTo().get(0).getAddress(), is("superheroes@quarkus.io"));
+        assertThat(message.getSubject(), is("WARNING: Super Villain Alert"));
+        assertThat(message.getText(), is("Lex Luthor has been seen in Gotham City!\r\n"));
+    }
+}
+```
 
 ## 🧑‍💻 Contributing
 
