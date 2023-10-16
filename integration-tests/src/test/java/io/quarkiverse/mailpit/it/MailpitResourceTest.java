@@ -11,9 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import io.quarkiverse.mailpit.test.InjectMailer;
-import io.quarkiverse.mailpit.test.MailerContext;
-import io.quarkiverse.mailpit.test.WithMailer;
+import io.quarkiverse.mailpit.test.InjectMailbox;
+import io.quarkiverse.mailpit.test.Mailbox;
+import io.quarkiverse.mailpit.test.WithMailbox;
 import io.quarkiverse.mailpit.test.invoker.ApiException;
 import io.quarkiverse.mailpit.test.model.AppInformation;
 import io.quarkiverse.mailpit.test.model.Message;
@@ -22,11 +22,11 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
 @QuarkusTest
-@WithMailer
+@WithMailbox
 public class MailpitResourceTest {
 
-    @InjectMailer
-    MailerContext mailbox;
+    @InjectMailbox
+    Mailbox mailbox;
 
     @AfterEach
     public void afterEach() throws ApiException {

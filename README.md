@@ -13,7 +13,7 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-A Quarkus extension that lets you utilize [Mailpit](https://github.com/axllent/mailpit) as a Dev Service for the Quarkus Mailer.  Mailpit acts as an SMTP server, provides a modern web interface to view & test captured emails, and contains an API for automated integration testing.
+A Quarkus extension that lets you utilize [Mailpit](https://github.com/axllent/mailpit) as a [DevService](https://quarkus.io/guides/dev-services) for the Quarkus Mailer enabling zero-config SMTP for testing or running in dev mode.  Mailpit acts as an SMTP server, provides a modern web interface to view & test captured emails, and contains an API for automated integration testing.
 
 Using this service has some obvious advantages when running in dev mode including but not limited to:
 
@@ -104,11 +104,17 @@ Running your integration tests you can inspect the results of any mail capture b
 
 ```java
 @QuarkusTest
-@WithMailer
+@WithMailbox
 public class MailpitResourceTest {
 
-    @InjectMailer
-    MailerContext mailbox;
+    @InjectMailbox
+    Mailbox mailbox;
+
+    @AfterEach
+    public void afterEach() throws ApiException {
+        // clear the mailbox after each test run if you prefer
+        mailbox.clear();
+    }
 
     @Test
     public void testAlert() throws ApiException {

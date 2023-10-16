@@ -28,7 +28,7 @@ import io.quarkiverse.mailpit.test.rest.MessagesApi;
 /**
  * Injected MailContext wrapping the API to Mailpit for unit testing.
  */
-public class MailerContext {
+public class Mailbox {
     private ApiClient apiClient;
     private ApplicationApi applicationApi;
     private MessagesApi messagesApi;

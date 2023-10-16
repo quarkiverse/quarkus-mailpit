@@ -5,24 +5,24 @@ import java.util.Map;
 
 import io.quarkus.test.common.QuarkusTestResourceConfigurableLifecycleManager;
 
-public class QuarkusMailpitManager implements QuarkusTestResourceConfigurableLifecycleManager<WithMailer> {
+public class QuarkusMailpitManager implements QuarkusTestResourceConfigurableLifecycleManager<WithMailbox> {
 
-    private WithMailer options;
-    private MailerContext mailerContext;
+    private WithMailbox options;
+    private Mailbox mailbox;
 
     @Override
-    public void init(WithMailer annotation) {
+    public void init(WithMailbox annotation) {
         this.options = annotation;
+        this.mailbox = new Mailbox();
     }
 
     @Override
     public void init(Map<String, String> initArgs) {
-        throw new IllegalStateException("Use @WithMailer() annotation instead");
+        throw new IllegalStateException("Use @WithMailbox() annotation instead");
     }
 
     @Override
     public Map<String, String> start() {
-        this.mailerContext = new MailerContext();
         return Collections.emptyMap();
     }
 
@@ -33,7 +33,7 @@ public class QuarkusMailpitManager implements QuarkusTestResourceConfigurableLif
 
     @Override
     public void inject(TestInjector testInjector) {
-        testInjector.injectIntoFields(mailerContext,
-                new TestInjector.AnnotatedAndMatchesType(InjectMailer.class, MailerContext.class));
+        testInjector.injectIntoFields(mailbox,
+                new TestInjector.AnnotatedAndMatchesType(InjectMailbox.class, Mailbox.class));
     }
 }
