@@ -7,34 +7,19 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
 import io.quarkiverse.mailpit.test.InjectMailer;
 import io.quarkiverse.mailpit.test.MailerContext;
 import io.quarkiverse.mailpit.test.WithMailer;
-import io.quarkiverse.mailpit.test.invoker.ApiClient;
 import io.quarkiverse.mailpit.test.invoker.ApiException;
 import io.quarkiverse.mailpit.test.model.AppInformation;
 import io.quarkiverse.mailpit.test.model.Message;
-import io.quarkiverse.mailpit.test.model.MessageSummary;
-import io.quarkiverse.mailpit.test.model.MessagesSummary;
-import io.quarkiverse.mailpit.test.rest.MessageApi;
-import io.quarkiverse.mailpit.test.rest.MessagesApi;
-import io.quarkus.test.junit.launcher.ConfigUtil;
-import jakarta.inject.Inject;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-
-import java.net.http.HttpClient;
-import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
 
 @QuarkusTest
 @WithMailer

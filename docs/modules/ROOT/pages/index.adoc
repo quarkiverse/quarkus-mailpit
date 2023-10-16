@@ -23,6 +23,14 @@ For instance, with Maven, add the following dependency to your POM file:
     <artifactId>quarkus-mailpit</artifactId>
     <version>{project-version}</version>
 </dependency>
+
+<!-- If you want to use test framework to verify emails also -->
+<dependency>
+   <groupId>io.quarkiverse.mailpit</groupId>
+   <artifactId>quarkus-mailpit-testing</artifactId>
+   <version>{project-version}</version>
+   <scope>test</scope>
+</dependency>
 ----
 
 == Usage

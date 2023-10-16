@@ -48,6 +48,14 @@ Or add to you pom.xml directly:
     <artifactId>quarkus-mailpit</artifactId>
     <version>{project-version}</version>
 </dependency>
+
+<!-- If you want to use test framework to verify emails also -->
+<dependency>
+   <groupId>io.quarkiverse.mailpit</groupId>
+   <artifactId>quarkus-mailpit-testing</artifactId>
+   <version>{project-version}</version>
+   <scope>test</scope>
+</dependency>
 ```
 
 ## Usage
