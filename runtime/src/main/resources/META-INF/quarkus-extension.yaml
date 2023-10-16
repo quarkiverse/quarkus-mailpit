@@ -13,5 +13,5 @@ metadata:
   config:
     - "quarkus.mailpit."
   status: "stable"
-  guide: "https://quarkiverse.github.io/quarkiverse-docs/quarkus-mailpit/dev/"
+  guide: "https://quarkiverse.github.io/quarkiverse-docs/quarkus-mailpit/dev/index.html"
   icon-url: "https://raw.githubusercontent.com/axllent/mailpit/develop/server/ui/mailpit.svg"
