@@ -53,7 +53,7 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
     private String hostName;
 
     MailpitContainer(MailpitConfig config, boolean useSharedNetwork) {
-        super(DockerImageName.parse(config.imageName).asCompatibleSubstituteFor(MailpitConfig.DEFAULT_IMAGE));
+        super(DockerImageName.parse(config.imageName()).asCompatibleSubstituteFor(MailpitConfig.DEFAULT_IMAGE));
         this.runtimeMailPort = getMailPort();
         this.useSharedNetwork = useSharedNetwork;
 
@@ -62,7 +62,7 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         waitingFor(Wait.forHttp("/").forPort(PORT_HTTP));
 
         // configure verbose container logging
-        if (config.verbose) {
+        if (config.verbose()) {
             withEnv("MP_VERBOSE", "true");
         }
 

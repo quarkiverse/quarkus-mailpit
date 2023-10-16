@@ -112,7 +112,7 @@ public class MailpitProcessor {
 
     private DevServicesResultBuildItem.RunningDevService startMailpit(DockerStatusBuildItem dockerStatusBuildItem,
             MailpitConfig mailpitConfig, GlobalDevServicesConfig devServicesConfig, boolean useSharedNetwork) {
-        if (mailpitConfig.enabled.isPresent() && mailpitConfig.enabled.get()) {
+        if (!mailpitConfig.enabled()) {
             // explicitly disabled
             log.warn("Not starting dev services for Mailpit, as it has been disabled in the config.");
             return null;
