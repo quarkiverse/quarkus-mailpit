@@ -21,7 +21,7 @@ Using this service has some obvious advantages when running in dev mode includin
 * Prevent accidentally sending a customer an email while developing
 * Use the REST API to verify contents of real send emails and not mocked mail
 * [12 Factor App: Backing services](https://12factor.net/backing-services) Treat backing services as attached resources
-* [12 Factor App: Dev/Prod Parity](https://12factor.net/dev-prod-parity) Keep development, staging, and production as similar as possible 
+* [12 Factor App: Dev/Prod Parity](https://12factor.net/dev-prod-parity) Keep development and production as similar as possible 
 
 ## Getting started
 
