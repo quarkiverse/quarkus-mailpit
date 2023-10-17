@@ -65,7 +65,7 @@ Now that you configured your POM to use the service, now you need to tell your d
 ```properties
 %dev.quarkus.mailer.host=localhost
 %dev.quarkus.mailer.port=1025
-%dev.quarkus.mailer.mock=false
+%dev.quarkus.mailer.mock=false # In dev mode, prevent from using the mock SMTP server
 ```
 
 This will enable the Mailer to send real e-mails that will be intercepted by Mailpit.  Next, add some code that sends an e-mail...
