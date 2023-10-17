@@ -14,5 +14,5 @@ metadata:
     - "quarkus.mailpit."
   status: "stable"
   guide: "https://quarkiverse.github.io/quarkiverse-docs/quarkus-mailpit/dev/index.html"
-  icon-url: "https://raw.githubusercontent.com/axllent/mailpit/develop/server/ui/mailpit.svg"
+  icon-url: "https://raw.githubusercontent.com/quarkiverse/quarkus-mailpit/main/docs/modules/ROOT/assets/images/mailpit.svg"
   sponsor: "KSM Technology Partners"
