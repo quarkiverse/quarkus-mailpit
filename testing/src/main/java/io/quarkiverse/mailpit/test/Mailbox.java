@@ -71,7 +71,7 @@ public class Mailbox {
         final List<Message> results = new ArrayList<>();
         final MessagesApi messagesApi = getMessagesApi();
         final MessageApi messageApi = getMessageApi();
-        final MessagesSummary messages = messagesApi.messagesSummary(query, 0, 50);
+        final MessagesSummary messages = messagesApi.messagesSummary(query, start, limit);
         for (MessageSummary summary : messages.getMessages()) {
             Message message = messageApi.message(summary.getID());
             results.add(message);
