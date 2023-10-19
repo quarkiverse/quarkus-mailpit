@@ -25,12 +25,14 @@ import jakarta.ws.rs.Path;
 
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
+import io.quarkus.mailer.MailerName;
 
 @Path("/mailpit")
 @ApplicationScoped
 public class MailpitResource {
 
     @Inject
+    @MailerName("smtp1")
     Mailer mailer;
 
     @Path("/alert")

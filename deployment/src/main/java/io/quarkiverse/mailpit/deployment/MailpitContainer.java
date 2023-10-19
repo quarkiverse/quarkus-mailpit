@@ -3,7 +3,6 @@ package io.quarkiverse.mailpit.deployment;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
@@ -58,18 +57,18 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         this.runtimeMailPort = getMailPort();
         this.useSharedNetwork = useSharedNetwork;
 
-        withLabel(MailpitProcessor.DEV_SERVICE_LABEL, MailpitProcessor.FEATURE);
-        withExposedPorts(PORT_HTTP);
-        withNetwork(Network.SHARED);
-        waitingFor(Wait.forHttp("/").forPort(PORT_HTTP));
+        super.withLabel(MailpitProcessor.DEV_SERVICE_LABEL, MailpitProcessor.FEATURE);
+        super.withExposedPorts(PORT_HTTP);
+        super.withNetwork(Network.SHARED);
+        super.waitingFor(Wait.forHttp("/").forPort(PORT_HTTP));
 
         // configure verbose container logging
         if (config.verbose()) {
-            withEnv("MP_VERBOSE", "true");
+            super.withEnv("MP_VERBOSE", "true");
         }
 
         // forward the container logs
-        withLogConsumer(new JbossContainerLogConsumer(log).withPrefix(MailpitProcessor.FEATURE));
+        super.withLogConsumer(new JbossContainerLogConsumer(log).withPrefix(MailpitProcessor.FEATURE));
     }
 
     @Override
@@ -125,8 +124,22 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      * @return the mailer port or -1 if not found which will cause this service not to start
      */
     public static Integer getMailPort() {
-        final Optional<Integer> mailPort = ConfigProvider.getConfig().getOptionalValue("quarkus.mailer.port",
-                Integer.class);
-        return mailPort.orElse(-1);
+        // first try default port
+        int port = ConfigProvider.getConfig().getOptionalValue("quarkus.mailer.port",
+                Integer.class).orElse(-1);
+
+        // if not found search through named mailers until we find one
+        if (port == -1) {
+            // check for all configs
+            for (String key : ConfigProvider.getConfig().getPropertyNames()) {
+                if (key.contains("quarkus.mailer.") && key.endsWith("port")) {
+                    port = ConfigProvider.getConfig().getOptionalValue(key, Integer.class).orElse(-1);
+                    if (port >= 0) {
+                        break;
+                    }
+                }
+            }
+        }
+        return port;
     }
 }
