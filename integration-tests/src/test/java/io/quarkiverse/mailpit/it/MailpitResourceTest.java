@@ -47,7 +47,7 @@ public class MailpitResourceTest {
         assertThat(message, notNullValue());
         assertThat(message.getTo().get(0).getAddress(), is("superheroes@quarkus.io"));
         assertThat(message.getSubject(), is("WARNING: Super Villain Alert"));
-        assertThat(message.getText(), is("Lex Luthor has been seen in Gotham City!\r\n"));
+        assertThat(message.getText(), is("Lex Luthor has been seen in Metropolis!\r\n"));
     }
 
     @Test
