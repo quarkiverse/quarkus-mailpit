@@ -58,7 +58,6 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         this.useSharedNetwork = useSharedNetwork;
 
         super.withLabel(MailpitProcessor.DEV_SERVICE_LABEL, MailpitProcessor.FEATURE);
-        super.withExposedPorts(PORT_HTTP);
         super.withNetwork(Network.SHARED);
         super.waitingFor(Wait.forHttp("/").forPort(PORT_HTTP));
 
@@ -82,6 +81,8 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
 
         // this forces the SMTP port to match what the user has configured for quarkus.mailer.port
         addFixedExposedPort(this.runtimeMailPort, PORT_SMTP);
+        // this forces the HTTP port so the DevUI doesn't break on every change
+        addFixedExposedPort(PORT_HTTP, PORT_HTTP);
     }
 
     /**

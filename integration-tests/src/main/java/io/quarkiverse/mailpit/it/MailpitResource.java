@@ -41,7 +41,7 @@ public class MailpitResource {
         Mail m = new Mail();
         m.setFrom("admin@hallofjustice.net");
         m.setTo(List.of("superheroes@quarkus.io"));
-        m.setText("Lex Luthor has been seen in Gotham City!");
+        m.setText("Lex Luthor has been seen in Metropolis!");
         m.setSubject("WARNING: Super Villain Alert");
         mailer.send(m);
 
