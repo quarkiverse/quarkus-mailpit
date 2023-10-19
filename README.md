@@ -81,11 +81,14 @@ public class SuperheroResource {
 
     @GET
     public String villainAlert() {
-        mailer.send(Mail.withText("superheroes@quarkus.io",
-                "WARNING: Super Villain Alert",
-                "Lex Luthor has been seen in Gotham City!"));
+        Mail m = new Mail();
+        m.setFrom("admin@hallofjustice.net");
+        m.setTo(List.of("superheroes@quarkus.io"));
+        m.setSubject("WARNING: Super Villain Alert");
+        m.setText("Lex Luthor has been seen in Gotham City!");
+        mailer.send(m);
 
-        return "Superheroes alerted!!";
+        return "Superheroes alerted!";
     }
 }
 ```
