@@ -34,6 +34,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "gastaldi",
+      "name": "George Gastaldi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/54133?v=4",
+      "profile": "http://gastaldi.wordpress.com",
+      "contributions": [
+        "bug",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
