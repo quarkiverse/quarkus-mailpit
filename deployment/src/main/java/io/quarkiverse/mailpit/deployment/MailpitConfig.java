@@ -7,7 +7,7 @@ import io.smallrye.config.WithDefault;
 
 /**
  * Allows configuring the Mailpit mail server.
- *
+ * <p>
  * Find more info about Mailpit on <a href="https://github.com/axllent/mailpit">https://github.com/axllent/mailpit</a>.
  */
 @ConfigMapping(prefix = "quarkus.mailpit")
