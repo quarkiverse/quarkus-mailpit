@@ -42,7 +42,8 @@
       "profile": "http://gastaldi.wordpress.com",
       "contributions": [
         "bug",
-        "test"
+        "test",
+        "doc"
       ]
     }
   ],
