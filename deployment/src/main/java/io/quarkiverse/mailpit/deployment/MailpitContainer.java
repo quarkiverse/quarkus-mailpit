@@ -94,6 +94,7 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         Map<String, String> exposed = new HashMap<>(2);
         exposed.put(CONFIG_SMTP_PORT, Objects.toString(getMailPort()));
         exposed.put(CONFIG_HTTP_SERVER, getMailpitHttpServer());
+        exposed.putAll(super.getEnvMap());
         return exposed;
     }
 
