@@ -26,6 +26,10 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-openapi</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.quarkiverse.mailpit</groupId>
       <artifactId>quarkus-mailpit-testing</artifactId>
       <version>${project.version}</version>
