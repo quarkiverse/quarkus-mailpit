@@ -45,6 +45,15 @@
         "test",
         "doc"
       ]
+    },
+    {
+      "login": "erickloss",
+      "name": "Eric Kloss",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16836464?v=4",
+      "profile": "https://github.com/erickloss",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
