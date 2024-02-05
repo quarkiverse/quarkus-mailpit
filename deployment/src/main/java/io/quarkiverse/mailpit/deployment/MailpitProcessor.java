@@ -57,7 +57,7 @@ public class MailpitProcessor {
             BuildProducer<MailpitDevServicesConfigBuildItem> mailpitBuildItemBuildProducer) {
 
         if (devService != null) {
-            boolean shouldShutdownTheBroker = !mailpitConfig.equals(cfg);
+            boolean shouldShutdownTheBroker = !MailpitConfig.isEqual(cfg, mailpitConfig);
             if (!shouldShutdownTheBroker) {
                 return devService.toBuildItem();
             }

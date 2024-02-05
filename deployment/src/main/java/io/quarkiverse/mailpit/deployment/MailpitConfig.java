@@ -1,5 +1,7 @@
 package io.quarkiverse.mailpit.deployment;
 
+import java.util.Objects;
+
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
 import io.smallrye.config.ConfigMapping;
@@ -37,5 +39,18 @@ public interface MailpitConfig {
      */
     @WithDefault("true")
     boolean verbose();
+
+    static boolean isEqual(MailpitConfig d1, MailpitConfig d2) {
+        if (!Objects.equals(d1.enabled(), d2.enabled())) {
+            return false;
+        }
+        if (!Objects.equals(d1.imageName(), d2.imageName())) {
+            return false;
+        }
+        if (!Objects.equals(d1.verbose(), d2.verbose())) {
+            return false;
+        }
+        return true;
+    }
 
 }
