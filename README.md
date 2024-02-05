@@ -62,15 +62,7 @@ Or add to you pom.xml directly:
 
 ## Usage
 
-Now that you configured your POM to use the service, now you need to tell your dev mode to send emails to Mailpit by modifying the following properties in your `application.properties`:
-
-```properties
-%dev.quarkus.mailer.host=localhost
-%dev.quarkus.mailer.port=1025
-%dev.quarkus.mailer.mock=false # In dev mode, prevent from using the mock SMTP server
-```
-
-This will enable the Mailer to send real e-mails that will be intercepted by Mailpit.  Next, add some code that sends an e-mail...
+Mailpit configure automatically all mailer configuration (even `MailerName`).
 
 ```java
 @Path("/superheroes")

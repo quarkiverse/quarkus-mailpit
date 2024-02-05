@@ -3,6 +3,7 @@ package io.quarkiverse.mailpit.deployment;
 import java.util.List;
 import java.util.Optional;
 
+import org.jboss.jandex.IndexView;
 import org.jboss.logging.Logger;
 
 import io.quarkus.bootstrap.classloading.QuarkusClassLoader;
@@ -10,6 +11,7 @@ import io.quarkus.deployment.IsNormal;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.BuildSteps;
+import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.DevServicesResultBuildItem;
 import io.quarkus.deployment.builditem.DevServicesSharedNetworkBuildItem;
 import io.quarkus.deployment.builditem.DockerStatusBuildItem;
@@ -54,8 +56,8 @@ public class MailpitProcessor {
             LoggingSetupBuildItem loggingSetupBuildItem,
             GlobalDevServicesConfig devServicesConfig,
             List<DevServicesSharedNetworkBuildItem> devServicesSharedNetworkBuildItem,
-            BuildProducer<MailpitDevServicesConfigBuildItem> mailpitBuildItemBuildProducer) {
-
+            BuildProducer<MailpitDevServicesConfigBuildItem> mailpitBuildItemBuildProducer,
+            CombinedIndexBuildItem combinedIndexBuildItem) {
         if (devService != null) {
             boolean shouldShutdownTheBroker = !MailpitConfig.isEqual(cfg, mailpitConfig);
             if (!shouldShutdownTheBroker) {
@@ -70,7 +72,7 @@ public class MailpitProcessor {
                 consoleInstalledBuildItem, loggingSetupBuildItem);
         try {
             devService = startMailpit(dockerStatusBuildItem, mailpitConfig, devServicesConfig,
-                    !devServicesSharedNetworkBuildItem.isEmpty());
+                    !devServicesSharedNetworkBuildItem.isEmpty(), combinedIndexBuildItem.getIndex());
             if (devService == null) {
                 compressor.closeAndDumpCaptured();
             } else {
@@ -111,16 +113,11 @@ public class MailpitProcessor {
     }
 
     private DevServicesResultBuildItem.RunningDevService startMailpit(DockerStatusBuildItem dockerStatusBuildItem,
-            MailpitConfig mailpitConfig, GlobalDevServicesConfig devServicesConfig, boolean useSharedNetwork) {
+            MailpitConfig mailpitConfig, GlobalDevServicesConfig devServicesConfig, boolean useSharedNetwork,
+            IndexView index) {
         if (!mailpitConfig.enabled()) {
             // explicitly disabled
             log.warn("Not starting dev services for Mailpit, as it has been disabled in the config.");
-            return null;
-        }
-
-        if (MailpitContainer.getMailPort() <= 0) {
-            // no mailer configured
-            log.warn("Not starting dev services for Mailpit, as no 'quarkus.mailer.port' has been configured.");
             return null;
         }
 
@@ -129,7 +126,7 @@ public class MailpitProcessor {
             return null;
         }
 
-        final MailpitContainer mailpit = new MailpitContainer(mailpitConfig, useSharedNetwork);
+        final MailpitContainer mailpit = new MailpitContainer(mailpitConfig, useSharedNetwork, index);
         devServicesConfig.timeout.ifPresent(mailpit::withStartupTimeout);
         mailpit.start();
 

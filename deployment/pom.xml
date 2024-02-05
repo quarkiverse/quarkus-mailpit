@@ -26,6 +26,11 @@
       <artifactId>quarkus-vertx-http-dev-ui-spi</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-mailer-deployment</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>io.quarkiverse.mailpit</groupId>
       <artifactId>quarkus-mailpit</artifactId>
       <version>${project.version}</version>

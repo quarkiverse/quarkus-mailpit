@@ -1,10 +1,12 @@
 package io.quarkiverse.mailpit.deployment;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.eclipse.microprofile.config.ConfigProvider;
+import org.jboss.jandex.AnnotationInstance;
+import org.jboss.jandex.IndexView;
 import org.jboss.logging.Logger;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
@@ -12,6 +14,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 import io.quarkus.devservices.common.ConfigureUtil;
+import io.quarkus.mailer.MailerName;
 
 /**
  * Testcontainers implementation for Mailpit mail server.
@@ -40,10 +43,6 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      */
     private static final Integer PORT_HTTP = 8025;
     /**
-     * Runtime mail port from either "quarkus.mailer.port" or 1025 if not found
-     */
-    private final Integer runtimeMailPort;
-    /**
      * Flag whether to use shared networking
      */
     private final boolean useSharedNetwork;
@@ -51,11 +50,12 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      * The dynamic host name determined from TestContainers.
      */
     private String hostName;
+    private IndexView index;
 
-    MailpitContainer(MailpitConfig config, boolean useSharedNetwork) {
+    MailpitContainer(MailpitConfig config, boolean useSharedNetwork, IndexView index) {
         super(DockerImageName.parse(config.imageName()).asCompatibleSubstituteFor(MailpitConfig.DEFAULT_IMAGE));
-        this.runtimeMailPort = getMailPort();
         this.useSharedNetwork = useSharedNetwork;
+        this.index = index;
 
         super.withLabel(MailpitProcessor.DEV_SERVICE_LABEL, MailpitProcessor.FEATURE);
         super.withNetwork(Network.SHARED);
@@ -80,9 +80,8 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         }
 
         // this forces the SMTP port to match what the user has configured for quarkus.mailer.port
-        addFixedExposedPort(this.runtimeMailPort, PORT_SMTP);
-        // this forces the HTTP port so the DevUI doesn't break on every change
-        addFixedExposedPort(PORT_HTTP, PORT_HTTP);
+        // and the HTTP port for the DevUI
+        addExposedPorts(PORT_SMTP, PORT_HTTP);
     }
 
     /**
@@ -91,10 +90,29 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      * @return the map of as running configuration of the dev service
      */
     public Map<String, String> getExposedConfig() {
-        Map<String, String> exposed = new HashMap<>(2);
-        exposed.put(CONFIG_SMTP_PORT, Objects.toString(getMailPort()));
+        Map<String, String> exposed = new HashMap<>();
+
+        final String port = Objects.toString(getMappedPort(PORT_SMTP));
+
+        // mailpit specific
+        exposed.put(CONFIG_SMTP_PORT, port);
         exposed.put(CONFIG_HTTP_SERVER, getMailpitHttpServer());
         exposed.putAll(super.getEnvMap());
+
+        // quarkus mailer default
+        exposed.put("quarkus.mailer.port", port);
+        exposed.put("quarkus.mailer.host", getHost());
+        exposed.put("quarkus.mailer.mock", "false");
+
+        // quarkus mailer named mailers
+        Collection<AnnotationInstance> namedMailers = index.getAnnotations(MailerName.class.getName());
+        for (AnnotationInstance namedMailer : namedMailers) {
+            String name = namedMailer.value().asString();
+            exposed.put("quarkus.mailer." + name + ".port", port);
+            exposed.put("quarkus.mailer." + name + ".host", getHost());
+            exposed.put("quarkus.mailer." + name + ".mock", "false");
+        }
+
         return exposed;
     }
 
@@ -104,44 +122,6 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      * @return the calculated full URL to the Mailpit UI
      */
     public String getMailpitHttpServer() {
-        return String.format("http://%s:%d", getMailpitHost(), getMappedPort(PORT_HTTP));
-    }
-
-    /**
-     * Get the calculated Mailpit host address.
-     *
-     * @return the host address
-     */
-    public String getMailpitHost() {
-        if (hostName != null && !hostName.isEmpty()) {
-            return hostName;
-        } else {
-            return getHost();
-        }
-    }
-
-    /**
-     * Use "quarkus.mailer.port" to configure Mailpit as its exposed SMTP port.
-     *
-     * @return the mailer port or -1 if not found which will cause this service not to start
-     */
-    public static Integer getMailPort() {
-        // first try default port
-        int port = ConfigProvider.getConfig().getOptionalValue("quarkus.mailer.port",
-                Integer.class).orElse(-1);
-
-        // if not found search through named mailers until we find one
-        if (port == -1) {
-            // check for all configs
-            for (String key : ConfigProvider.getConfig().getPropertyNames()) {
-                if (key.contains("quarkus.mailer.") && key.endsWith("port")) {
-                    port = ConfigProvider.getConfig().getOptionalValue(key, Integer.class).orElse(-1);
-                    if (port >= 0) {
-                        break;
-                    }
-                }
-            }
-        }
-        return port;
+        return String.format("http://%s:%d", getHost(), getMappedPort(PORT_HTTP));
     }
 }
