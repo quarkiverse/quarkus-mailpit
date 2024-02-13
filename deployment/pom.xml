@@ -24,6 +24,7 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-vertx-http-dev-ui-spi</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
