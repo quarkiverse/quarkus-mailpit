@@ -64,6 +64,15 @@
         "code",
         "design"
       ]
+    },
+    {
+      "login": "georgleber",
+      "name": "Georg Leber",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1669956?v=4",
+      "profile": "https://www.georg-leber.de",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
