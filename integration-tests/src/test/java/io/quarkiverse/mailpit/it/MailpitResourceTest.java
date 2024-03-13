@@ -51,6 +51,23 @@ public class MailpitResourceTest {
     }
 
     @Test
+    public void testVertxAlert() throws ApiException, InterruptedException {
+        given()
+                .when().get("/mailpit/vertx-alert")
+                .then()
+                .statusCode(200)
+                .body(is("Vert.x Superheroes alerted!!"));
+
+        Thread.sleep(2000);
+        // look up the mail and assert it
+        Message message = mailbox.findFirst("vert.x@hallofjustice.net");
+        assertThat(message, notNullValue());
+        assertThat(message.getTo().get(0).getAddress(), is("vert.x@quarkus.io"));
+        assertThat(message.getSubject(), is("WARNING: Vert.x Super Villain Alert"));
+        assertThat(message.getText(), is("Vert.x Lex Luthor has been seen in Metropolis!\r\n"));
+    }
+
+    @Test
     public void testMailpitRunning() throws ApiException {
         // query server
         AppInformation appInfo = mailbox.getApplicationInfo();

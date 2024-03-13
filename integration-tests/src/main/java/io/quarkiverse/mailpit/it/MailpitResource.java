@@ -28,6 +28,8 @@ import jakarta.ws.rs.core.MediaType;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
 import io.quarkus.mailer.MailerName;
+import io.vertx.ext.mail.MailClient;
+import io.vertx.ext.mail.MailMessage;
 
 @Path("/mailpit")
 @Produces(MediaType.TEXT_PLAIN)
@@ -37,6 +39,9 @@ public class MailpitResource {
     @Inject
     @MailerName("smtp1")
     Mailer mailer;
+
+    @Inject
+    MailClient vertxClient;
 
     @Path("/alert")
     @GET
@@ -49,6 +54,21 @@ public class MailpitResource {
         mailer.send(m);
 
         return "Superheroes alerted!!";
+    }
+
+    @Path("/vertx-alert")
+    @GET
+    public String vertxAlert() {
+        MailMessage message = new MailMessage();
+
+        message.setFrom("vert.x@hallofjustice.net");
+        message.setTo(List.of("vert.x@quarkus.io"));
+        message.setSubject("WARNING: Vert.x Super Villain Alert");
+        message.setText("Vert.x Lex Luthor has been seen in Metropolis!");
+
+        vertxClient.sendMail(message);
+
+        return "Vert.x Superheroes alerted!!";
     }
 
     @Path("/from")
