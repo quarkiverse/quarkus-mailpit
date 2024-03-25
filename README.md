@@ -10,7 +10,7 @@
 [![Build](https://github.com/quarkiverse/quarkus-mailpit/actions/workflows/build.yml/badge.svg)](https://github.com/quarkiverse/quarkus-mailpit/actions/workflows/build.yml)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 A Quarkus extension that lets you utilize [Mailpit](https://github.com/axllent/mailpit) as a [DevService](https://quarkus.io/guides/dev-services) for the Quarkus Mailer enabling zero-config SMTP for testing or running in dev mode.  Mailpit acts as an SMTP server, provides a modern web interface to view & test captured emails, and contains an API for automated integration testing.
@@ -160,6 +160,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/erickloss"><img src="https://avatars.githubusercontent.com/u/16836464?v=4?s=100" width="100px;" alt="Eric Kloss"/><br /><sub><b>Eric Kloss</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mailpit/issues?q=author%3Aerickloss" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ggrebert"><img src="https://avatars.githubusercontent.com/u/1737774?v=4?s=100" width="100px;" alt="Geoffrey GREBERT"/><br /><sub><b>Geoffrey GREBERT</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mailpit/commits?author=ggrebert" title="Code">💻</a> <a href="#design-ggrebert" title="Design">🎨</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://www.georg-leber.de"><img src="https://avatars.githubusercontent.com/u/1669956?v=4?s=100" width="100px;" alt="Georg Leber"/><br /><sub><b>Georg Leber</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mailpit/commits?author=georgleber" title="Documentation">📖</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://xam.dk"><img src="https://avatars.githubusercontent.com/u/54129?v=4?s=100" width="100px;" alt="Max Rydahl Andersen"/><br /><sub><b>Max Rydahl Andersen</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mailpit/issues?q=author%3Amaxandersen" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
