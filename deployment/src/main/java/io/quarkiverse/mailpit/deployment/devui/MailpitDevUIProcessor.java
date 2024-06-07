@@ -32,6 +32,7 @@ public class MailpitDevUIProcessor {
                 final PageBuilder versionPage = Page.externalPageBuilder("SMTP Port")
                         .icon("font-awesome-solid:envelope")
                         .doNotEmbed()
+                        .url("https://github.com/axllent/mailpit")
                         .staticLabel(config.getOrDefault(MailpitContainer.CONFIG_SMTP_PORT, "0"));
                 card.addPage(versionPage);
             }
