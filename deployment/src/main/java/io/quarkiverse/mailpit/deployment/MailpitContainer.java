@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.IndexView;
 import org.jboss.logging.Logger;
@@ -81,7 +83,13 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
 
         // this forces the SMTP port to match what the user has configured for quarkus.mailer.port
         // and the HTTP port for the DevUI
-        addExposedPorts(PORT_SMTP, PORT_HTTP);
+        Optional<Integer> mailerPortConfig = ConfigProvider.getConfig().getOptionalValue("quarkus.mailer.port", Integer.class);
+        if (mailerPortConfig.isPresent()) {
+            addFixedExposedPort(mailerPortConfig.get(), PORT_SMTP);
+            addExposedPort(PORT_HTTP);
+        } else {
+            addExposedPorts(PORT_SMTP, PORT_HTTP);
+        }
     }
 
     /**
