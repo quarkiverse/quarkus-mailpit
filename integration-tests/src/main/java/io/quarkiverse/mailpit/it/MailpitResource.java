@@ -56,6 +56,19 @@ public class MailpitResource {
         return "Superheroes alerted!!";
     }
 
+    @Path("/alert/html")
+    @GET
+    public String villainAlertHtml() {
+        final Mail m = new Mail();
+        m.setFrom("admin@hallofjustice.net");
+        m.setTo(List.of("superheroes@quarkus.io"));
+        m.setSubject("WARNING: Super Villain Alert");
+        m.setHtml("<strong>Lex Luthor<strong> has been seen in Metropolis!");
+        mailer.send(m);
+
+        return "Superheroes alerted!!";
+    }
+
     @Path("/vertx-alert")
     @GET
     public String vertxAlert() {
