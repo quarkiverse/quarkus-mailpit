@@ -17,6 +17,7 @@
 package io.quarkiverse.mailpit.it;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -25,6 +26,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
+import io.quarkus.mailer.Attachment;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
 import io.quarkus.mailer.MailerName;
@@ -51,6 +53,7 @@ public class MailpitResource {
         m.setTo(List.of("superheroes@quarkus.io"));
         m.setSubject("WARNING: Super Villain Alert");
         m.setText("Lex Luthor has been seen in Metropolis!");
+        m.setHeaders(Map.of("X-Tags", List.of("Quarkus, Superheroes, Alert")));
         mailer.send(m);
 
         return "Superheroes alerted!!";
@@ -64,6 +67,7 @@ public class MailpitResource {
         m.setTo(List.of("superheroes@quarkus.io"));
         m.setSubject("WARNING: Super Villain Alert");
         m.setHtml("<strong>Lex Luthor<strong> has been seen in Metropolis!");
+        m.setHeaders(Map.of("X-Tags", List.of("Quarkus, Superheroes, Alert")));
         mailer.send(m);
 
         return "Superheroes alerted!!";
@@ -84,6 +88,25 @@ public class MailpitResource {
         return "Vert.x Superheroes alerted!!";
     }
 
+    @Path("/send-attachment")
+    @GET
+    public String sendAttachment() {
+        final Mail m = new Mail();
+        m.setFrom("admin@hallofjustice.net");
+        m.setTo(List.of("superheroes@quarkus.io"));
+        m.setSubject("File Attachment");
+        m.setText("Please find the attached file.");
+
+        // Create a simple file attachment
+        Attachment attachment = new Attachment("simple-file.txt", "This is the content of the file.".getBytes(), "text/plain");
+
+        m.setAttachments(List.of(attachment));
+        m.setHeaders(Map.of("X-Tags", List.of("Quarkus, Superheroes, Attachment")));
+        mailer.send(m);
+
+        return "Email with attachment sent!";
+    }
+
     @Path("/from")
     @GET
     public String from() {
@@ -92,6 +115,7 @@ public class MailpitResource {
         m.setTo(List.of("quarkus@quarkus.io"));
         m.setText("A simple email sent from a Quarkus application.");
         m.setSubject("Ahoy from Quarkus");
+        m.setHeaders(Map.of("X-Tags", List.of("Quarkus")));
         mailer.send(m);
 
         return String.format("Sent from %s", m.getFrom());
