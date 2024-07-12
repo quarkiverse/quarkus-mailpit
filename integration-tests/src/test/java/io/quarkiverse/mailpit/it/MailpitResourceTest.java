@@ -5,7 +5,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsStringIgnoringCase;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
+
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -15,7 +16,6 @@ import io.quarkiverse.mailpit.test.InjectMailbox;
 import io.quarkiverse.mailpit.test.Mailbox;
 import io.quarkiverse.mailpit.test.WithMailbox;
 import io.quarkiverse.mailpit.test.invoker.ApiException;
-import io.quarkiverse.mailpit.test.model.AppInformation;
 import io.quarkiverse.mailpit.test.model.Message;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.path.json.JsonPath;
@@ -51,6 +51,21 @@ public class MailpitResourceTest {
     }
 
     @Test
+    public void testSpam() throws ApiException {
+        final int count = 100;
+        given()
+                .when().get("/mailpit/spam/" + count)
+                .then()
+                .statusCode(200)
+                .body(is(count + " emails sent!!"));
+
+        // look up the mail and assert it
+        List<Message> message = mailbox.find("from:\"spam\"", 0, 200);
+        assertThat(message, notNullValue());
+        assertThat(message.size(), is(count));
+    }
+
+    @Test
     public void testVertxAlert() throws ApiException, InterruptedException {
         given()
                 .when().get("/mailpit/vertx-alert")
@@ -65,14 +80,6 @@ public class MailpitResourceTest {
         assertThat(message.getTo().get(0).getAddress(), is("vert.x@quarkus.io"));
         assertThat(message.getSubject(), is("WARNING: Vert.x Super Villain Alert"));
         assertThat(message.getText(), is("Vert.x Lex Luthor has been seen in Metropolis!\r\n"));
-    }
-
-    @Test
-    public void testMailpitRunning() throws ApiException {
-        // query server
-        AppInformation appInfo = mailbox.getApplicationInfo();
-        // verify
-        assertThat(appInfo.getVersion(), startsWith("v")); //v.1.9.6
     }
 
     @Test

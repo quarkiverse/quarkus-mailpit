@@ -23,6 +23,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
@@ -59,6 +60,22 @@ public class MailpitResource {
         return "Superheroes alerted!!";
     }
 
+    @Path("/spam/{count}")
+    @GET
+    public String spamBot(@PathParam("count") int count) {
+        for (int i = 0; i < count; i++) {
+            final Mail m = new Mail();
+            m.setFrom("blaster@spam.net");
+            m.setTo(List.of("superheroes@quarkus.io"));
+            m.setSubject("Spam Bot " + i);
+            m.setText("You just got spammed " + i + " times.");
+            m.setHeaders(Map.of("X-Tags", List.of("Spam")));
+            mailer.send(m);
+        }
+
+        return count + " emails sent!!";
+    }
+
     @Path("/alert/html")
     @GET
     public String villainAlertHtml() {
@@ -66,8 +83,8 @@ public class MailpitResource {
         m.setFrom("admin@hallofjustice.net");
         m.setTo(List.of("superheroes@quarkus.io"));
         m.setSubject("WARNING: Super Villain Alert");
-        m.setHtml("<strong>Lex Luthor<strong> has been seen in Metropolis!");
-        m.setHeaders(Map.of("X-Tags", List.of("Quarkus, Superheroes, Alert")));
+        m.setHtml("<strong>Lex Luthor</strong> has been seen in <i>Metropolis</i>!");
+        m.setHeaders(Map.of("X-Tags", List.of("Quarkus, Superheroes, Alert, HTML")));
         mailer.send(m);
 
         return "Superheroes alerted!!";
