@@ -52,7 +52,7 @@ public class MailpitResourceTest {
 
     @Test
     public void testSpam() throws ApiException {
-        final int count = 100;
+        final int count = 600;
         given()
                 .when().get("/mailpit/spam/" + count)
                 .then()
@@ -60,7 +60,7 @@ public class MailpitResourceTest {
                 .body(is(count + " emails sent!!"));
 
         // look up the mail and assert it
-        List<Message> message = mailbox.find("from:\"spam\"", 0, 200);
+        List<Message> message = mailbox.find("from:\"spam\"", 0, count);
         assertThat(message, notNullValue());
         assertThat(message.size(), is(count));
     }
