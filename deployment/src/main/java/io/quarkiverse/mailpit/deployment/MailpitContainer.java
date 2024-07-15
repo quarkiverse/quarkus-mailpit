@@ -68,6 +68,9 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
             super.withEnv("MP_VERBOSE", "true");
         }
 
+        // max messages
+        super.withEnv("MP_MAX_MESSAGES", Objects.toString(config.maxMessages()));
+
         // forward the container logs
         super.withLogConsumer(new JbossContainerLogConsumer(log).withPrefix(MailpitProcessor.FEATURE));
     }

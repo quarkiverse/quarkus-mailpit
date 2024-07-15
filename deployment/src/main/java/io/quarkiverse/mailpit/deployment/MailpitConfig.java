@@ -40,6 +40,13 @@ public interface MailpitConfig {
     @WithDefault("true")
     boolean verbose();
 
+    /**
+     * Although mailpit can easily handling tens of thousands of emails, it will automatically prune old messages by default
+     * keeping the most recent 500 emails. Default is 500, or set to 0 to disable entirely.
+     */
+    @WithDefault("500")
+    int maxMessages();
+
     static boolean isEqual(MailpitConfig d1, MailpitConfig d2) {
         if (!Objects.equals(d1.enabled(), d2.enabled())) {
             return false;
@@ -48,6 +55,9 @@ public interface MailpitConfig {
             return false;
         }
         if (!Objects.equals(d1.verbose(), d2.verbose())) {
+            return false;
+        }
+        if (!Objects.equals(d1.maxMessages(), d2.maxMessages())) {
             return false;
         }
         return true;
