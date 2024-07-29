@@ -136,7 +136,7 @@ public class MailpitProcessor {
         return new DevServicesResultBuildItem.RunningDevService(FEATURE,
                 mailpit.getContainerId(),
                 mailpit::close,
-                mailpit.getExposedConfig(mailpitConfig));
+                mailpit.getExposedConfig());
     }
 
     private void shutdown() {

@@ -54,6 +54,7 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      */
     private String hostName;
     private IndexView index;
+    private OptionalInt mappedFixedPort;
 
     MailpitContainer(MailpitConfig config, boolean useSharedNetwork, IndexView index) {
         super(DockerImageName.parse(config.imageName()).asCompatibleSubstituteFor(MailpitConfig.DEFAULT_IMAGE));
@@ -65,6 +66,7 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         super.waitingFor(Wait.forHttp("/").forPort(PORT_HTTP));
 
         // Mapped http port
+        this.mappedFixedPort = config.mappedHttpPort();
         config.mappedHttpPort().ifPresent(fixedPort -> super.addFixedExposedPort(fixedPort, PORT_HTTP));
 
         // configure verbose container logging
@@ -104,14 +106,14 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      *
      * @return the map of as running configuration of the dev service
      */
-    public Map<String, String> getExposedConfig(MailpitConfig config) {
+    public Map<String, String> getExposedConfig() {
         Map<String, String> exposed = new HashMap<>();
 
         final String port = Objects.toString(getMappedPort(PORT_SMTP));
 
         // mailpit specific
         exposed.put(CONFIG_SMTP_PORT, port);
-        exposed.put(CONFIG_HTTP_SERVER, getMailpitHttpServer(config.mappedHttpPort()));
+        exposed.put(CONFIG_HTTP_SERVER, getMailpitHttpServer());
         exposed.putAll(super.getEnvMap());
 
         // quarkus mailer default
@@ -136,7 +138,8 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      *
      * @return the calculated full URL to the Mailpit UI
      */
-    public String getMailpitHttpServer(OptionalInt mappedHttpPort) {
-        return String.format("http://%s:%d", getHost(), mappedHttpPort.orElseGet(() -> getMappedPort(PORT_HTTP)));
+
+    public String getMailpitHttpServer() {
+        return String.format("http://%s:%d", getHost(), this.mappedFixedPort.orElseGet(() -> getMappedPort(PORT_HTTP)));
     }
 }
