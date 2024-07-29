@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.jandex.AnnotationInstance;
@@ -53,6 +54,7 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      */
     private String hostName;
     private IndexView index;
+    private OptionalInt mappedFixedPort;
 
     MailpitContainer(MailpitConfig config, boolean useSharedNetwork, IndexView index) {
         super(DockerImageName.parse(config.imageName()).asCompatibleSubstituteFor(MailpitConfig.DEFAULT_IMAGE));
@@ -62,6 +64,10 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         super.withLabel(MailpitProcessor.DEV_SERVICE_LABEL, MailpitProcessor.FEATURE);
         super.withNetwork(Network.SHARED);
         super.waitingFor(Wait.forHttp("/").forPort(PORT_HTTP));
+
+        // Mapped http port
+        this.mappedFixedPort = config.mappedHttpPort();
+        config.mappedHttpPort().ifPresent(fixedPort -> super.addFixedExposedPort(fixedPort, PORT_HTTP));
 
         // configure verbose container logging
         if (config.verbose()) {
@@ -132,7 +138,8 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      *
      * @return the calculated full URL to the Mailpit UI
      */
+
     public String getMailpitHttpServer() {
-        return String.format("http://%s:%d", getHost(), getMappedPort(PORT_HTTP));
+        return String.format("http://%s:%d", getHost(), this.mappedFixedPort.orElseGet(() -> getMappedPort(PORT_HTTP)));
     }
 }
