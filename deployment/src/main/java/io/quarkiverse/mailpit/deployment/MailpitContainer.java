@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.jandex.AnnotationInstance;
@@ -63,6 +64,9 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         super.withNetwork(Network.SHARED);
         super.waitingFor(Wait.forHttp("/").forPort(PORT_HTTP));
 
+        // Mapped http port
+        config.mappedHttpPort().ifPresent(fixedPort -> super.addFixedExposedPort(fixedPort, PORT_HTTP));
+
         // configure verbose container logging
         if (config.verbose()) {
             super.withEnv("MP_VERBOSE", "true");
@@ -100,14 +104,14 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      *
      * @return the map of as running configuration of the dev service
      */
-    public Map<String, String> getExposedConfig() {
+    public Map<String, String> getExposedConfig(MailpitConfig config) {
         Map<String, String> exposed = new HashMap<>();
 
         final String port = Objects.toString(getMappedPort(PORT_SMTP));
 
         // mailpit specific
         exposed.put(CONFIG_SMTP_PORT, port);
-        exposed.put(CONFIG_HTTP_SERVER, getMailpitHttpServer());
+        exposed.put(CONFIG_HTTP_SERVER, getMailpitHttpServer(config.mappedHttpPort()));
         exposed.putAll(super.getEnvMap());
 
         // quarkus mailer default
@@ -132,7 +136,7 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      *
      * @return the calculated full URL to the Mailpit UI
      */
-    public String getMailpitHttpServer() {
-        return String.format("http://%s:%d", getHost(), getMappedPort(PORT_HTTP));
+    public String getMailpitHttpServer(OptionalInt mappedHttpPort) {
+        return String.format("http://%s:%d", getHost(), mappedHttpPort.orElseGet(() -> getMappedPort(PORT_HTTP)));
     }
 }

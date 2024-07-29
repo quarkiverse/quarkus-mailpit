@@ -1,6 +1,7 @@
 package io.quarkiverse.mailpit.deployment;
 
 import java.util.Objects;
+import java.util.OptionalInt;
 
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
@@ -47,6 +48,11 @@ public interface MailpitConfig {
     @WithDefault("500")
     int maxMessages();
 
+    /**
+     * Statically define the mapped HTTP port that the container user interface exposes
+     */
+    OptionalInt mappedHttpPort();
+
     static boolean isEqual(MailpitConfig d1, MailpitConfig d2) {
         if (!Objects.equals(d1.enabled(), d2.enabled())) {
             return false;
@@ -58,6 +64,9 @@ public interface MailpitConfig {
             return false;
         }
         if (!Objects.equals(d1.maxMessages(), d2.maxMessages())) {
+            return false;
+        }
+        if (!Objects.equals(d1.mappedHttpPort(), d2.mappedHttpPort())) {
             return false;
         }
         return true;

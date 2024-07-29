@@ -77,4 +77,21 @@ endif::add-copy-button-to-env-var[]
 --|int 
 |`500`
 
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mailpit_quarkus-mailpit-mapped-http-port]]`link:#quarkus-mailpit_quarkus-mailpit-mapped-http-port[quarkus.mailpit.mapped-http-port]`
+
+
+[.description]
+--
+Statically define the mapped HTTP port that the container user interface exposes
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MAILPIT_MAPPED_HTTP_PORT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MAILPIT_MAPPED_HTTP_PORT+++`
+endif::add-copy-button-to-env-var[]
+--|int 
+|
+
 |===
