@@ -32,6 +32,8 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
 
     public static final String CONFIG_SMTP_PORT = MailpitProcessor.FEATURE + ".smtp.port";
     public static final String CONFIG_HTTP_SERVER = MailpitProcessor.FEATURE + ".http.server";
+    public static final String CONFIG_HTTP_HOST = MailpitProcessor.FEATURE + ".http.host";
+    public static final String CONFIG_HTTP_PORT = MailpitProcessor.FEATURE + ".http.port";
 
     /**
      * Logger which will be used to capture container STDOUT and STDERR.
@@ -56,14 +58,15 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
     private IndexView index;
     private OptionalInt mappedFixedPort;
 
-    MailpitContainer(MailpitConfig config, boolean useSharedNetwork, IndexView index) {
+    MailpitContainer(MailpitConfig config, boolean useSharedNetwork, IndexView index, String path) {
         super(DockerImageName.parse(config.imageName()).asCompatibleSubstituteFor(MailpitConfig.DEFAULT_IMAGE));
         this.useSharedNetwork = useSharedNetwork;
         this.index = index;
 
         super.withLabel(MailpitProcessor.DEV_SERVICE_LABEL, MailpitProcessor.FEATURE);
+        super.withEnv("MP_WEBROOT", path);
         super.withNetwork(Network.SHARED);
-        super.waitingFor(Wait.forHttp("/").forPort(PORT_HTTP));
+        super.waitingFor(Wait.forHttp(path).forPort(PORT_HTTP));
 
         // Mapped http port
         this.mappedFixedPort = config.mappedHttpPort();
@@ -113,6 +116,8 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
 
         // mailpit specific
         exposed.put(CONFIG_SMTP_PORT, port);
+        exposed.put(CONFIG_HTTP_HOST, getHost());
+        exposed.put(CONFIG_HTTP_PORT, String.valueOf(getMappedPort(PORT_HTTP)));
         exposed.put(CONFIG_HTTP_SERVER, getMailpitHttpServer());
         exposed.putAll(super.getEnvMap());
 
