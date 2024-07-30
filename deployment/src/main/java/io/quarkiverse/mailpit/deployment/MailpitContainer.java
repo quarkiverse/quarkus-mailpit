@@ -55,8 +55,8 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
      * The dynamic host name determined from TestContainers.
      */
     private String hostName;
-    private IndexView index;
-    private OptionalInt mappedFixedPort;
+    private final IndexView index;
+    private final OptionalInt mappedFixedPort;
 
     MailpitContainer(MailpitConfig config, boolean useSharedNetwork, IndexView index, String path) {
         super(DockerImageName.parse(config.imageName()).asCompatibleSubstituteFor(MailpitConfig.DEFAULT_IMAGE));
@@ -102,6 +102,11 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         } else {
             addExposedPorts(PORT_SMTP, PORT_HTTP);
         }
+    }
+
+    @Override
+    public String getHost() {
+        return useSharedNetwork ? this.hostName : super.getHost();
     }
 
     /**
