@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import io.quarkiverse.mailpit.test.InjectMailbox;
 import io.quarkiverse.mailpit.test.Mailbox;
 import io.quarkiverse.mailpit.test.WithMailbox;
-import io.quarkiverse.mailpit.test.invoker.ApiException;
 import io.quarkiverse.mailpit.test.model.Message;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.path.json.JsonPath;
@@ -29,13 +28,13 @@ public class MailpitResourceTest {
     Mailbox mailbox;
 
     @AfterEach
-    public void afterEach() throws ApiException {
+    public void afterEach() {
         // clear the mailbox after each test run if you prefer
         mailbox.clear();
     }
 
     @Test
-    public void testAlert() throws ApiException {
+    public void testAlert() {
         given()
                 .when().get("/mailpit/alert")
                 .then()
@@ -51,7 +50,7 @@ public class MailpitResourceTest {
     }
 
     @Test
-    public void testSpam() throws ApiException {
+    public void testSpam() {
         final int count = 600;
         given()
                 .when().get("/mailpit/spam/" + count)
@@ -66,7 +65,7 @@ public class MailpitResourceTest {
     }
 
     @Test
-    public void testVertxAlert() throws ApiException, InterruptedException {
+    public void testVertxAlert() throws InterruptedException {
         given()
                 .when().get("/mailpit/vertx-alert")
                 .then()
@@ -83,7 +82,7 @@ public class MailpitResourceTest {
     }
 
     @Test
-    public void testCustomFrom() throws ApiException {
+    public void testCustomFrom() {
         given()
                 .when().get("/mailpit/from")
                 .then()

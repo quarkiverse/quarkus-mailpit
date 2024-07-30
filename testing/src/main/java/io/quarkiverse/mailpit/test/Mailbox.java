@@ -4,6 +4,7 @@ import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -38,24 +39,30 @@ public class Mailbox {
      * Delete a single message.
      *
      * @param ID Database ID to delete
-     * @throws ApiException if fails to make API call
      */
-    public void delete(String ID) throws ApiException {
+    public void delete(String ID) {
         final MessagesApi messagesApi = getMessagesApi();
         final DeleteRequest request = new DeleteRequest();
         request.addIdsItem(ID);
-        messagesApi.delete(request);
+        try {
+            messagesApi.delete(request);
+        } catch (ApiException e) {
+            rethrow(e);
+        }
     }
 
     /**
      * Delete all messages.
      *
-     * @throws ApiException if fails to make API call
      */
-    public void clear() throws ApiException {
+    public void clear() {
         final MessagesApi messagesApi = getMessagesApi();
         final DeleteRequest request = new DeleteRequest();
-        messagesApi.delete(request);
+        try {
+            messagesApi.delete(request);
+        } catch (ApiException e) {
+            rethrow(e);
+        }
     }
 
     /**
@@ -65,16 +72,19 @@ public class Mailbox {
      * @param start Pagination offset (optional, default to 0)
      * @param limit Limit results (optional, default to 50)
      * @return List<Message>
-     * @throws ApiException if fails to make API call
      */
-    public List<Message> find(String query, Integer start, Integer limit) throws ApiException {
+    public List<Message> find(String query, Integer start, Integer limit) {
         final List<Message> results = new ArrayList<>();
         final MessagesApi messagesApi = getMessagesApi();
         final MessageApi messageApi = getMessageApi();
-        final MessagesSummary messages = messagesApi.messagesSummary(query, start, limit);
-        for (MessageSummary summary : messages.getMessages()) {
-            Message message = messageApi.message(summary.getID());
-            results.add(message);
+        try {
+            final MessagesSummary messages = messagesApi.messagesSummary(query, start, limit);
+            for (MessageSummary summary : Objects.requireNonNull(messages.getMessages())) {
+                Message message = messageApi.message(summary.getID());
+                results.add(message);
+            }
+        } catch (ApiException e) {
+            rethrow(e);
         }
 
         return results;
@@ -85,9 +95,8 @@ public class Mailbox {
      *
      * @param query Search query (required)
      * @return Message
-     * @throws ApiException if fails to make API call
      */
-    public Message findFirst(String query) throws ApiException {
+    public Message findFirst(String query) {
         final List<Message> results = find(query, 0, 1);
         if (results.isEmpty()) {
             return null;
@@ -100,11 +109,15 @@ public class Mailbox {
      * Returns basic runtime information, message totals and latest release version.
      *
      * @return AppInformation
-     * @throws ApiException if fails to make API call
      */
-    public AppInformation getApplicationInfo() throws ApiException {
+    public AppInformation getApplicationInfo() {
         final ApplicationApi api = getApplicationApi();
-        return api.appInformation();
+        try {
+            return api.appInformation();
+        } catch (ApiException e) {
+            rethrow(e);
+            return null;
+        }
     }
 
     public ApiClient getApiClient() {
@@ -178,5 +191,9 @@ public class Mailbox {
         final JavaTimeModule module = new JavaTimeModule();
         mapper.registerModule(module);
         return mapper;
+    }
+
+    private <T extends Throwable> void rethrow(Throwable x) throws T {
+        throw (T) x;
     }
 }
