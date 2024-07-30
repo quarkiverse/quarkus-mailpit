@@ -45,6 +45,7 @@ public class MailpitDevUIProcessor {
         routes.produce(frameworkRoot.routeBuilder()
                 .management()
                 .route(MailpitProcessor.FEATURE + "/*")
+                .displayOnNotFoundPage("Mailpit UI")
                 .handler(recorder.handler(coreVertxBuildItem.getVertx()))
                 .build());
     }
@@ -57,11 +58,6 @@ public class MailpitDevUIProcessor {
             ManagementInterfaceBuildTimeConfig managementInterfaceBuildTimeConfig,
             LaunchModeBuildItem launchModeBuildItem) {
         if (configProps.isPresent()) {
-            var path = nonApplicationRootPathBuildItem.resolveManagementPath(
-                    MailpitProcessor.FEATURE,
-                    managementInterfaceBuildTimeConfig,
-                    launchModeBuildItem);
-
             Map<String, String> config = configProps.get().getConfig();
             final CardPageBuildItem card = new CardPageBuildItem();
 
@@ -77,9 +73,13 @@ public class MailpitDevUIProcessor {
 
             // UI
             if (config.containsKey(MailpitContainer.CONFIG_HTTP_SERVER)) {
+                var externalPath = nonApplicationRootPathBuildItem.resolveManagementPath(
+                        MailpitProcessor.FEATURE,
+                        managementInterfaceBuildTimeConfig,
+                        launchModeBuildItem);
+
                 card.addPage(Page.externalPageBuilder("Mailpit UI")
-                        .doNotEmbed()
-                        .url(path)
+                        .url(externalPath, externalPath)
                         .isHtmlContent()
                         .icon("font-awesome-solid:envelopes-bulk"));
             }
