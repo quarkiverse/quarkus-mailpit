@@ -155,7 +155,9 @@ public class Mailbox {
         final Optional<String> mailPort = ConfigProvider.getConfig().getOptionalValue("mailpit.http.server",
                 String.class);
         return mailPort.orElseThrow(
-                () -> new IllegalStateException("Mailer cannot find `mailpit.http.server` so it cannot be used in testing."));
+                () -> new IllegalStateException("Mailer cannot find `mailpit.http.server` so it cannot be used in testing."))
+                + ConfigProvider.getConfig().getOptionalValue("MP_WEBROOT", String.class)
+                        .orElse("/");
     }
 
     /**
