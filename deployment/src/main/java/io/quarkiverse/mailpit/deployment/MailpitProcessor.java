@@ -2,6 +2,7 @@ package io.quarkiverse.mailpit.deployment;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.jboss.jandex.IndexView;
 import org.jboss.logging.Logger;
@@ -33,6 +34,9 @@ public class MailpitProcessor {
     private static final Logger log = Logger.getLogger(MailpitProcessor.class);
 
     public static final String FEATURE = "mailpit";
+
+    private static final Predicate<Thread> IS_DOCKER_JAVA_STREAM_THREAD_PREDICATE = (thread) -> thread.getName()
+            .startsWith("docker-java-stream");
 
     /**
      * Label to add to shared Dev Service for Mailpit running in containers.
@@ -76,7 +80,7 @@ public class MailpitProcessor {
 
         StartupLogCompressor compressor = new StartupLogCompressor(
                 (launchMode.isTest() ? "(test) " : "") + "Mailpit Dev Services Starting:",
-                consoleInstalledBuildItem, loggingSetupBuildItem);
+                consoleInstalledBuildItem, loggingSetupBuildItem, IS_DOCKER_JAVA_STREAM_THREAD_PREDICATE);
         try {
             var path = nonApplicationRootPathBuildItem.resolveManagementPath(
                     MailpitProcessor.FEATURE,
