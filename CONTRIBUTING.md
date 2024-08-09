@@ -1,4 +1,4 @@
-## Contributing at quarkus-quinoa
+## Contributing at quarkus-mailpit
 We are beyond excited to see that you want to contribute! We would love to accept your contributions. Navigate through the following to understand more about contributing.
 
 ### Prerequisites
@@ -6,14 +6,13 @@ We are beyond excited to see that you want to contribute! We would love to accep
 - Apache Maven
 
 ## Follow the Steps
-- [Fork the repository](https://github.com/quarkiverse/quarkus-quinoa/fork)
+- [Fork the repository](https://github.com/quarkiverse/quarkus-mailpit/fork)
 
 - Clone the project locally 
 
 ``` 
-git clone https://github.com/shivam-sharma7/quarkus-quinoa.git
+git clone https://github.com/quarkiverse/quarkus-mailpit.git
 ``` 
-**Note:** In the place of `shivam-sharma7` you have to add your github username.
 
 - Create a new branch
 
@@ -36,7 +35,7 @@ Before making any contribution make sure your local `main` keep up-to-date with 
 
 - First add upstream
 ```
-git remote add upstream https://github.com/quarkiverse/quarkus-quinoa.git
+git remote add upstream https://github.com/quarkiverse/quarkus-mailpit.git
 ```
 - Pull all changes from upstream
 ```
