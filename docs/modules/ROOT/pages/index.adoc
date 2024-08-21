@@ -48,7 +48,7 @@ Next, add some code that sends an e-mail...
 @ApplicationScoped
 public class SuperheroResource {
     @Inject
-    Mailbox mailer;
+    Mailer mailer;
 
     @GET
     public String villainAlert() {
@@ -93,7 +93,7 @@ Mailpit ships with https://github.com/axllent/mailpit/blob/develop/docs/apiv1/RE
 public class MailpitResourceTest {
 
     @InjectMailbox
-    Mailer mailbox;
+    Mailbox mailbox;
 
     @AfterEach
     public void afterEach() throws ApiException {
