@@ -48,7 +48,7 @@ Next, add some code that sends an e-mail...
 @ApplicationScoped
 public class SuperheroResource {
     @Inject
-    Mailer mailer;
+    Mailbox mailer;
 
     @GET
     public String villainAlert() {
