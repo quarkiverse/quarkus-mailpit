@@ -137,8 +137,8 @@ public class MailpitProcessor {
             return null;
         }
 
-        if (!dockerStatusBuildItem.isDockerAvailable()) {
-            log.warn("Docker isn't working, not starting dev services for Mailpit.");
+        if (!dockerStatusBuildItem.isContainerRuntimeAvailable()) {
+            log.warn("Docker/Podman isn't working, not starting dev services for Mailpit.");
             return null;
         }
 
