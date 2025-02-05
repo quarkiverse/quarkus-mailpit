@@ -47,10 +47,20 @@ public class MailpitUiProxy {
                 });
             } else {
                 // handle normal request
-                r.sendBuffer(event.body().buffer()).andThen(resp -> {
-                    event.response().setStatusCode(resp.result().statusCode());
-                    resp.result().headers().forEach(h -> event.response().putHeader(h.getKey(), h.getValue()));
-                    event.response().end(resp.result().bodyAsBuffer());
+                event.request().resume();
+                event.request().body().onComplete(body -> {
+                    r.sendBuffer(body.result()).onComplete(resp -> {
+                        if (resp.succeeded()) {
+                            event.response().setStatusCode(resp.result().statusCode());
+                            resp.result().headers().forEach(h -> event.response().putHeader(h.getKey(), h.getValue()));
+                            event.response().end(resp.result().body());
+                        } else {
+                            // Occurs if the connection to the docker container fails
+                            // Does not overwrite API error status codes from client which are handled in succeeded path
+                            // If end() omitted leaves connections hanging
+                            event.response().setStatusCode(500).end();
+                        }
+                    });
                 });
             }
         };
