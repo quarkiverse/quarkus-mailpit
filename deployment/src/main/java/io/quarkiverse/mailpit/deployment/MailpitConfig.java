@@ -42,6 +42,12 @@ public interface MailpitConfig {
     boolean verbose();
 
     /**
+     * Flag to control if chaos testing is requested.
+     */
+    @WithDefault("false")
+    boolean enableChaos();
+
+    /**
      * Although mailpit can easily handling tens of thousands of emails, it will automatically prune old messages by default
      * keeping the most recent 500 emails. Default is 500, or set to 0 to disable entirely.
      */
@@ -61,6 +67,9 @@ public interface MailpitConfig {
             return false;
         }
         if (!Objects.equals(d1.verbose(), d2.verbose())) {
+            return false;
+        }
+        if (!Objects.equals(d1.enableChaos(), d2.enableChaos())) {
             return false;
         }
         if (!Objects.equals(d1.maxMessages(), d2.maxMessages())) {
