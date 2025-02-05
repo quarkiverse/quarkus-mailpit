@@ -60,6 +60,22 @@ endif::add-copy-button-to-env-var[]
 --|boolean 
 |`true`
 
+a|icon:lock[title=Fixed at build time] [[quarkus-mailpit_quarkus-mailpit-enable-chaos]]`link:#quarkus-mailpit_quarkus-mailpit-enable-chaos[quarkus.mailpit.enable-chaos]`
+
+
+[.description]
+--
+Flag to control if chaos testing is requested.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MAILPIT_ENABLE_CHAOS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MAILPIT_ENABLE_CHAOS+++`
+endif::add-copy-button-to-env-var[]
+--|boolean
+|`false`
+
 
 a|icon:lock[title=Fixed at build time] [[quarkus-mailpit_quarkus-mailpit-max-messages]]`link:#quarkus-mailpit_quarkus-mailpit-max-messages[quarkus.mailpit.max-messages]`
 

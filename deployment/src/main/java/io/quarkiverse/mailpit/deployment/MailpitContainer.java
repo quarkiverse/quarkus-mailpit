@@ -77,6 +77,11 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
             super.withEnv("MP_VERBOSE", "true");
         }
 
+        // configure chaos testing
+        if (config.enableChaos()) {
+            super.withEnv("MP_ENABLE_CHAOS", "true");
+        }
+
         // max messages
         super.withEnv("MP_MAX_MESSAGES", Objects.toString(config.maxMessages()));
 
