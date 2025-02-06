@@ -14,11 +14,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import io.quarkiverse.mailpit.test.invoker.ApiClient;
 import io.quarkiverse.mailpit.test.invoker.ApiException;
-import io.quarkiverse.mailpit.test.model.AppInformation;
-import io.quarkiverse.mailpit.test.model.DeleteRequest;
-import io.quarkiverse.mailpit.test.model.Message;
-import io.quarkiverse.mailpit.test.model.MessageSummary;
-import io.quarkiverse.mailpit.test.model.MessagesSummary;
+import io.quarkiverse.mailpit.test.model.*;
 import io.quarkiverse.mailpit.test.rest.ApplicationApi;
 import io.quarkiverse.mailpit.test.rest.MessageApi;
 import io.quarkiverse.mailpit.test.rest.MessagesApi;
@@ -39,10 +35,10 @@ public class Mailbox {
      */
     public void delete(String ID) {
         final MessagesApi messagesApi = getMessagesApi();
-        final DeleteRequest request = new DeleteRequest();
+        final DeleteMessagesParamsRequest request = new DeleteMessagesParamsRequest();
         request.addIdsItem(ID);
         try {
-            messagesApi.deleteMessages(request);
+            messagesApi.deleteMessagesParams(request);
         } catch (ApiException e) {
             rethrow(e);
         }
@@ -54,9 +50,9 @@ public class Mailbox {
      */
     public void clear() {
         final MessagesApi messagesApi = getMessagesApi();
-        final DeleteRequest request = new DeleteRequest();
+        final DeleteMessagesParamsRequest request = new DeleteMessagesParamsRequest();
         try {
-            messagesApi.deleteMessages(request);
+            messagesApi.deleteMessagesParams(request);
         } catch (ApiException e) {
             rethrow(e);
         }
@@ -88,13 +84,21 @@ public class Mailbox {
         final MessagesApi messagesApi = getMessagesApi();
         final MessageApi messageApi = getMessageApi();
         try {
+            String startStr = null;
+            if (start != null) {
+                startStr = start.toString();
+            }
+            String limitStr = null;
+            if (limit != null) {
+                limitStr = limit.toString();
+            }
             String timezoneID = null;
             if (timeZone != null) {
                 timezoneID = timeZone.getID();
             }
-            final MessagesSummary messages = messagesApi.messagesSummary(query, start, limit, timezoneID);
+            final MessagesSummary messages = messagesApi.searchParams(query, startStr, limitStr, timezoneID);
             for (MessageSummary summary : Objects.requireNonNull(messages.getMessages())) {
-                Message message = messageApi.message(summary.getID());
+                Message message = messageApi.getMessageParams(summary.getID());
                 results.add(message);
             }
         } catch (ApiException e) {
