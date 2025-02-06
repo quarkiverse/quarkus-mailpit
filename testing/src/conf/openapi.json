@@ -50,7 +50,7 @@
     },
     "/api/v1/message/{ID}": {
       "get": {
-        "description": "Returns the summary of a message, marking the message as read.",
+        "description": "Returns the summary of a message, marking the message as read.\n\nThe ID can be set to `latest` to return the latest message.",
         "produces": [
           "application/json"
         ],
@@ -66,7 +66,7 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Message database ID",
+            "description": "Message database ID or \"latest\"",
             "name": "ID",
             "in": "path",
             "required": true
@@ -87,7 +87,7 @@
     },
     "/api/v1/message/{ID}/headers": {
       "get": {
-        "description": "Returns the message headers as an array.",
+        "description": "Returns the message headers as an array.\n\nThe ID can be set to `latest` to return the latest message headers.",
         "produces": [
           "application/json"
         ],
@@ -103,7 +103,7 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Database ID",
+            "description": "Message database ID or \"latest\"",
             "name": "ID",
             "in": "path",
             "required": true
@@ -140,7 +140,7 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Message database ID",
+            "description": "Message database ID or \"latest\"",
             "name": "ID",
             "in": "path",
             "required": true
@@ -177,7 +177,7 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Message database ID",
+            "description": "Message database ID or \"latest\"",
             "name": "ID",
             "in": "path",
             "required": true
@@ -290,7 +290,7 @@
     },
     "/api/v1/message/{ID}/raw": {
       "get": {
-        "description": "Returns the full email source as plain text.",
+        "description": "Returns the full email source as plain text.\n\nThe ID can be set to `latest` to return the latest message source.",
         "produces": [
           "text/plain"
         ],
@@ -306,7 +306,7 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Database ID",
+            "description": "Message database ID or \"latest\"",
             "name": "ID",
             "in": "path",
             "required": true
@@ -359,6 +359,43 @@
         "responses": {
           "200": {
             "$ref": "#/responses/OKResponse"
+          },
+          "default": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/message/{ID}/sa-check": {
+      "get": {
+        "description": "Returns the SpamAssassin (if enabled) summary of the message.\n\nNOTE: This feature is currently in beta and is documented for reference only.\nPlease do not integrate with it (yet) as there may be changes.",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Other"
+        ],
+        "summary": "SpamAssassin check (beta)",
+        "operationId": "SpamAssassinCheck",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Message database ID or \"latest\"",
+            "name": "ID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SpamAssassinResponse",
+            "schema": {
+              "$ref": "#/definitions/SpamAssassinResponse"
+            }
           },
           "default": {
             "$ref": "#/responses/ErrorResponse"
@@ -571,7 +608,7 @@
           "tags"
         ],
         "summary": "Get all current tags",
-        "operationId": "GetTags",
+        "operationId": "GetAllTags",
         "responses": {
           "200": {
             "$ref": "#/responses/ArrayResponse"
@@ -727,7 +764,7 @@
       "x-go-package": "net/mail"
     },
     "AppInformation": {
-      "description": "Response includes the current and latest Mailpit version, database info, and memory usage",
+      "description": "AppInformation struct",
       "type": "object",
       "properties": {
         "Database": {
@@ -743,12 +780,61 @@
           "description": "Latest Mailpit version",
           "type": "string"
         },
-        "Memory": {
-          "description": "Current memory usage in bytes",
-          "type": "integer",
-          "format": "uint64"
-        },
         "Messages": {
+          "description": "Total number of messages in the database",
+          "type": "integer",
+          "format": "int64"
+        },
+        "RuntimeStats": {
+          "description": "Runtime statistics",
+          "type": "object",
+          "properties": {
+            "Memory": {
+              "description": "Current memory usage in bytes",
+              "type": "integer",
+              "format": "uint64"
+            },
+            "MessagesDeleted": {
+              "description": "Database runtime messages deleted",
+              "type": "integer",
+              "format": "int64"
+            },
+            "SMTPAccepted": {
+              "description": "Accepted runtime SMTP messages",
+              "type": "integer",
+              "format": "int64"
+            },
+            "SMTPAcceptedSize": {
+              "description": "Total runtime accepted messages size in bytes",
+              "type": "integer",
+              "format": "int64"
+            },
+            "SMTPIgnored": {
+              "description": "Ignored runtime SMTP messages (when using --ignore-duplicate-ids)",
+              "type": "integer",
+              "format": "int64"
+            },
+            "SMTPRejected": {
+              "description": "Rejected runtime SMTP messages",
+              "type": "integer",
+              "format": "int64"
+            },
+            "Uptime": {
+              "description": "Mailpit server uptime in seconds",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        "Tags": {
+          "description": "Tags and message totals per tag",
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "Unread": {
           "description": "Total number of messages in the database",
           "type": "integer",
           "format": "int64"
@@ -758,8 +844,7 @@
           "type": "string"
         }
       },
-      "x-go-name": "appInformation",
-      "x-go-package": "github.com/axllent/mailpit/server/apiv1"
+      "x-go-package": "github.com/axllent/mailpit/internal/stats"
     },
     "Attachment": {
       "description": "Attachment struct for inline and attachments",
@@ -808,11 +893,6 @@
       },
       "x-go-name": "deleteMessagesRequestBody",
       "x-go-package": "github.com/axllent/mailpit/server/apiv1"
-    },
-    "File": {
-      "type": "object",
-      "title": "File represents an open file descriptor.",
-      "x-go-package": "os"
     },
     "HTMLCheckResponse": {
       "description": "Response represents the HTML check response struct",
@@ -1179,6 +1259,13 @@
           "description": "Read status",
           "type": "boolean"
         },
+        "ReplyTo": {
+          "description": "Reply-To address",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Address"
+          }
+        },
         "Size": {
           "description": "Message size in bytes (total)",
           "type": "integer",
@@ -1256,6 +1343,54 @@
       },
       "x-go-package": "github.com/axllent/mailpit/server/apiv1"
     },
+    "Rule": {
+      "description": "Rule struct",
+      "type": "object",
+      "properties": {
+        "Description": {
+          "description": "SpamAssassin rule description",
+          "type": "string"
+        },
+        "Name": {
+          "description": "SpamAssassin rule name",
+          "type": "string"
+        },
+        "Score": {
+          "description": "Spam rule score",
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "x-go-package": "github.com/axllent/mailpit/internal/spamassassin"
+    },
+    "SpamAssassinResponse": {
+      "description": "Result is a SpamAssassin result",
+      "type": "object",
+      "properties": {
+        "Error": {
+          "description": "If populated will return an error string",
+          "type": "string"
+        },
+        "IsSpam": {
+          "description": "Whether the message is spam or not",
+          "type": "boolean"
+        },
+        "Rules": {
+          "description": "Spam rules triggered",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Rule"
+          }
+        },
+        "Score": {
+          "description": "Total spam score based on triggered rules",
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "x-go-name": "Result",
+      "x-go-package": "github.com/axllent/mailpit/internal/spamassassin"
+    },
     "WebUIConfiguration": {
       "description": "Response includes global web UI settings",
       "type": "object",
@@ -1264,17 +1399,21 @@
           "description": "Whether the HTML check has been globally disabled",
           "type": "boolean"
         },
+        "DuplicatesIgnored": {
+          "description": "Whether messages with duplicate IDs are ignored",
+          "type": "boolean"
+        },
         "MessageRelay": {
           "description": "Message Relay information",
           "type": "object",
           "properties": {
+            "AllowedRecipients": {
+              "description": "Only allow relaying to these recipients (regex)",
+              "type": "string"
+            },
             "Enabled": {
               "description": "Whether message relaying (release) is enabled",
               "type": "boolean"
-            },
-            "RecipientAllowlist": {
-              "description": "Allowlist of accepted recipients",
-              "type": "string"
             },
             "ReturnPath": {
               "description": "Enforced Return-Path (if set) for relay bounces",
@@ -1285,6 +1424,10 @@
               "type": "string"
             }
           }
+        },
+        "SpamAssassin": {
+          "description": "Whether SpamAssassin is enabled",
+          "type": "boolean"
         }
       },
       "x-go-name": "webUIConfiguration",
@@ -1387,11 +1530,11 @@
     "BinaryResponse": {
       "description": "Binary data response inherits the attachment's content type",
       "schema": {
-        "$ref": "#/definitions/File"
+        "type": "string"
       }
     },
     "ErrorResponse": {
-      "description": "Error response",
+      "description": "HTTP error response will return with a \u003e= 400 response code",
       "schema": {
         "type": "string"
       }
