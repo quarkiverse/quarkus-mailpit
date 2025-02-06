@@ -2,10 +2,7 @@ package io.quarkiverse.mailpit.test;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import org.eclipse.microprofile.config.ConfigProvider;
 
@@ -74,11 +71,28 @@ public class Mailbox {
      * @return List<Message>
      */
     public List<Message> find(String query, Integer start, Integer limit) {
+        return find(query, start, limit, null);
+    }
+
+    /**
+     * Search messages. Returns the latest messages matching a search.
+     *
+     * @param query Search query (required)
+     * @param start Pagination offset (optional, default to 0)
+     * @param limit Limit results (optional, default to 50)
+     * @param timeZone Specify a timezone for before: and after: queries (optional, default null)
+     * @return List<Message>
+     */
+    public List<Message> find(String query, Integer start, Integer limit, TimeZone timeZone) {
         final List<Message> results = new ArrayList<>();
         final MessagesApi messagesApi = getMessagesApi();
         final MessageApi messageApi = getMessageApi();
         try {
-            final MessagesSummary messages = messagesApi.messagesSummary(query, start, limit);
+            String timezoneID = null;
+            if (timeZone != null) {
+                timezoneID = timeZone.getID();
+            }
+            final MessagesSummary messages = messagesApi.messagesSummary(query, start, limit, timezoneID);
             for (MessageSummary summary : Objects.requireNonNull(messages.getMessages())) {
                 Message message = messageApi.message(summary.getID());
                 results.add(message);
