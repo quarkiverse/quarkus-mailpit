@@ -45,7 +45,7 @@ public class Mailbox {
         final DeleteRequest request = new DeleteRequest();
         request.addIdsItem(ID);
         try {
-            messagesApi.delete(request);
+            messagesApi.deleteMessages(request);
         } catch (ApiException e) {
             rethrow(e);
         }
@@ -59,7 +59,7 @@ public class Mailbox {
         final MessagesApi messagesApi = getMessagesApi();
         final DeleteRequest request = new DeleteRequest();
         try {
-            messagesApi.delete(request);
+            messagesApi.deleteMessages(request);
         } catch (ApiException e) {
             rethrow(e);
         }
