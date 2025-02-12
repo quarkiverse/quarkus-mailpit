@@ -119,6 +119,60 @@ public class MailpitResourceTest {
 }
 ----
 
+=== Chaos Testing
+
+Mailpit provides chaos testing capabilities that allow you to simulate various email delivery scenarios. This is particularly useful for testing how your application handles email delivery failures.
+
+You can configure chaos testing through the Mailpit API. The extension provides a convenient way to set up chaos testing in your tests:
+
+[source,properties]
+----
+quarkus.mailpit.enable-chaos=true
+----
+
+[source,java]
+----
+@QuarkusTest
+@WithMailbox
+public class MailpitChaosTest {
+
+    @InjectMailbox
+    Mailbox mailbox;
+
+    @Test
+    public void testChaos() throws ApiException {
+        // Configure chaos testing
+        mailbox.setChaos(ChaosConfig.builder()
+            .acceptRate(50)     // 50% of emails will be accepted
+            .rejectMsg("Custom rejection message")
+            .build());
+
+        // Your email sending test code here...
+    }
+
+    @AfterEach
+    public void cleanup() throws ApiException {
+        // Don't forget to disable chaos after the test
+        mailbox.disableChaos();
+    }
+}
+----
+
+The chaos configuration supports the following options:
+
+* `acceptRate` - Percentage of emails to accept (0-100)
+* `rejectMsg` - Custom SMTP rejection message
+* `disconnect` - Randomly disconnect SMTP connections
+* `delay` - Add random SMTP processing delays (in seconds)
+
+This feature is particularly useful for:
+
+* Testing error handling in your email sending code
+* Simulating SMTP server failures
+* Ensuring your application gracefully handles email delivery issues
+* Testing retry mechanisms in your email infrastructure
+
+
 [[extension-configuration-reference]]
 == Extension Configuration Reference
 
