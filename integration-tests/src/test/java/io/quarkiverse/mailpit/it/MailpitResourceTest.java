@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import io.quarkiverse.mailpit.test.ChaosConfig;
 import io.quarkiverse.mailpit.test.InjectMailbox;
 import io.quarkiverse.mailpit.test.Mailbox;
 import io.quarkiverse.mailpit.test.WithMailbox;
@@ -31,6 +32,9 @@ public class MailpitResourceTest {
     public void afterEach() {
         // clear the mailbox after each test run if you prefer
         mailbox.clear();
+
+        // disable chaos testing after each test run if you prefer or disable in a finally block
+        mailbox.disableChaos();
     }
 
     @Test
@@ -112,6 +116,62 @@ public class MailpitResourceTest {
         if (StringUtils.isNotBlank((stack))) {
             // native mode does not have the stack trace
             assertThat(stack, containsStringIgnoringCase("sender address is not present"));
+        }
+    }
+
+    @Test
+    public void ensureChaosTestingSenderReturnsError() {
+        try {
+            mailbox.setChaos(
+                    ChaosConfig.builder()
+                            .authentication(451, 0)
+                            .sender(451, 100)
+                            .recipient(451, 0)
+                            .build());
+
+            Response response = given()
+                    .when().get("/mailpit/alert")
+                    .then()
+                    .statusCode(500)
+                    .and()
+                    .body("$", notNullValue())
+                    .extract().response();
+
+            JsonPath json = new JsonPath(response.asString());
+            String stack = json.get("stack").toString();
+            if (StringUtils.isNotBlank((stack))) {
+                // native mode does not have the stack trace
+                assertThat(stack, containsStringIgnoringCase("sender address not accepted"));
+                assertThat(stack, containsStringIgnoringCase("451 Chaos sender error"));
+            }
+        } finally {
+            mailbox.disableChaos();
+        }
+    }
+
+    @Test
+    public void ensureChaosTestingRecipientReturnsError() {
+        mailbox.setChaos(
+                ChaosConfig.builder()
+                        .authentication(451, 0)
+                        .sender(451, 0)
+                        .recipient(550, 100)
+                        .build());
+
+        Response response = given()
+                .when().get("/mailpit/alert")
+                .then()
+                .statusCode(500)
+                .and()
+                .body("$", notNullValue())
+                .extract().response();
+
+        JsonPath json = new JsonPath(response.asString());
+        String stack = json.get("stack").toString();
+        if (StringUtils.isNotBlank((stack))) {
+            // native mode does not have the stack trace
+            assertThat(stack, containsStringIgnoringCase("recipient address not accepted"));
+            assertThat(stack, containsStringIgnoringCase("550 Chaos recipient error"));
         }
     }
 }
