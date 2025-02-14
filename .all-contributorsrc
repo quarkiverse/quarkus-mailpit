@@ -129,6 +129,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "axllent",
+      "name": "Ralph Slooten",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1463435?v=4",
+      "profile": "https://www.axllent.org/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
