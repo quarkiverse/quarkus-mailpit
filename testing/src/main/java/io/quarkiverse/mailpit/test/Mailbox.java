@@ -18,6 +18,7 @@ import io.quarkiverse.mailpit.test.model.*;
 import io.quarkiverse.mailpit.test.rest.ApplicationApi;
 import io.quarkiverse.mailpit.test.rest.MessageApi;
 import io.quarkiverse.mailpit.test.rest.MessagesApi;
+import io.quarkiverse.mailpit.test.rest.TestingApi;
 
 /**
  * Injected MailContext wrapping the API to Mailpit for unit testing.
@@ -27,6 +28,7 @@ public class Mailbox {
     private ApplicationApi applicationApi;
     private MessagesApi messagesApi;
     private MessageApi messageApi;
+    private TestingApi testingApi;
 
     /**
      * Delete a single message.
@@ -123,6 +125,64 @@ public class Mailbox {
     }
 
     /**
+     * Set chaos testing.
+     *
+     * @param chaosConfig chaos configuration (required)
+     *
+     */
+    public void setChaos(ChaosConfig chaosConfig) {
+        final TestingApi testingApi = getTestingApi();
+
+        try {
+            testingApi.setChaosParams(convertChaosTriggers(chaosConfig.getChaosTriggers()));
+        } catch (ApiException e) {
+            rethrow(e);
+        }
+    }
+
+    /**
+     * Disable chaos testing.
+     *
+     */
+    public void disableChaos() {
+        final TestingApi testingApi = getTestingApi();
+
+        try {
+            ChaosConfig chaosConfig = ChaosConfig.builder().build();
+            testingApi.setChaosParams(convertChaosTriggers(chaosConfig.getChaosTriggers()));
+        } catch (ApiException e) {
+            rethrow(e);
+        }
+    }
+
+    /**
+     * Converts an internal ChaosTrigger to the OpenAPI Trigger.
+     *
+     * @param chaosTrigger the internal representation
+     * @return the OpenAPI Trigger model
+     */
+    private Trigger convertTrigger(ChaosTrigger chaosTrigger) {
+        Trigger openApiTrigger = new Trigger();
+        openApiTrigger.setErrorCode((long) chaosTrigger.getErrorCode());
+        openApiTrigger.setProbability((long) chaosTrigger.getProbability());
+        return openApiTrigger;
+    }
+
+    /**
+     * Converts an internal ChaosTriggers to the OpenAPI Triggers.
+     *
+     * @param chaosTriggers the internal triggers
+     * @return the OpenAPI Triggers model
+     */
+    private Triggers convertChaosTriggers(ChaosTriggers chaosTriggers) {
+        Triggers openApiTriggers = new Triggers();
+        openApiTriggers.setAuthentication(convertTrigger(chaosTriggers.getAuthentication()));
+        openApiTriggers.setRecipient(convertTrigger(chaosTriggers.getRecipient()));
+        openApiTriggers.setSender(convertTrigger(chaosTriggers.getSender()));
+        return openApiTriggers;
+    }
+
+    /**
      * Get application information
      * Returns basic runtime information, message totals and latest release version.
      *
@@ -150,6 +210,13 @@ public class Mailbox {
             this.applicationApi = new ApplicationApi(this.getApiClient());
         }
         return this.applicationApi;
+    }
+
+    public TestingApi getTestingApi() {
+        if (this.testingApi == null) {
+            this.testingApi = new TestingApi(this.getApiClient());
+        }
+        return this.testingApi;
     }
 
     public MessagesApi getMessagesApi() {

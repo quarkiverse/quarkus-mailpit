@@ -118,6 +118,75 @@ public class MailpitResourceTest {
     }
 }
 ----
+=== Chaos Testing
+
+Mailpit provides chaos testing capabilities that allow you to simulate various email delivery scenarios.
+This is particularly useful for testing how your application handles email delivery failures.
+
+You can configure chaos testing through the Mailpit UI and API.
+The extension provides a convenient way to set up chaos testing in your tests:
+
+[source,properties]
+----
+quarkus.mailpit.enable-chaos=true
+----
+
+[source,java]
+----
+@QuarkusTest
+@WithMailbox
+public class MailpitChaosTest {
+    @InjectMailbox
+    Mailbox mailbox;
+    @Test
+    public void testChaos() throws ApiException {
+        // Arrange - Configure chaos testing - set errorCode and probability for authentication, sender and recipient error triggers
+        mailbox.setChaos(
+                ChaosConfig.builder()
+                        .authentication(451, 0)
+                        .sender(451, 0)
+                        .recipient(550, 100)
+                        .build()
+        );
+
+        // Act - Your code that sends email goes here...
+
+        // Assert - Make assertions on errors
+
+        // Stack traces may contain strings like the following
+        // "recipient address not accepted"
+        // "550 Chaos recipient error"
+    }
+    @AfterEach
+    public void cleanup() throws ApiException {
+        // Don't forget to disable chaos testing after the test
+        mailbox.disableChaos();
+    }
+}
+----
+
+The chaos configuration supports the following options:
+
+Mailpit has three types of triggers in which chaos can be introduced:
+
+* Checking the sender is valid.
+* Checking the recipient is valid.
+* Checking the authentication is valid.
+
+Authentication chaos testing requires that authentication is set up in MailPit and is currently not configurable by quarkus-mailpit.
+
+Each trigger requires the following parameters are filled:
+
+* `errorCode` - is an integer from 400 to 599 - the returned SMTP error code when an error triggers
+* `probability` - is an an integer from 0 to 100 - how likely this error will trigger
+
+This feature is particularly useful for:
+
+* Testing error handling in your email sending code
+* Simulating SMTP server failures
+* Ensuring your application gracefully handles email delivery issues
+* Testing retry mechanisms in your email infrastructure
+
 
 [[extension-configuration-reference]]
 == Extension Configuration Reference
