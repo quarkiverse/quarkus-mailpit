@@ -138,6 +138,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "dcdh",
+      "name": "Damien Clément d'Huart",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5189615?v=4",
+      "profile": "https://github.com/dcdh",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
