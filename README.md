@@ -166,6 +166,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/carolosf"><img src="https://avatars.githubusercontent.com/u/2076671?v=4?s=100" width="100px;" alt="carolosf"/><br /><sub><b>carolosf</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mailpit/commits?author=carolosf" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://www.axllent.org/"><img src="https://avatars.githubusercontent.com/u/1463435?v=4?s=100" width="100px;" alt="Ralph Slooten"/><br /><sub><b>Ralph Slooten</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mailpit/commits?author=axllent" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dcdh"><img src="https://avatars.githubusercontent.com/u/5189615?v=4?s=100" width="100px;" alt="Damien Clément d'Huart"/><br /><sub><b>Damien Clément d'Huart</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mailpit/issues?q=author%3Adcdh" title="Bug reports">🐛</a></td>
+    </tr>
   </tbody>
 </table>
 
