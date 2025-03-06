@@ -23,7 +23,6 @@ import io.quarkus.deployment.console.StartupLogCompressor;
 import io.quarkus.deployment.dev.devservices.GlobalDevServicesConfig;
 import io.quarkus.deployment.logging.LoggingSetupBuildItem;
 import io.quarkus.vertx.http.deployment.NonApplicationRootPathBuildItem;
-import io.quarkus.vertx.http.runtime.management.ManagementInterfaceBuildTimeConfig;
 
 /**
  * Starts a Mailpit server as dev service if needed.
@@ -64,8 +63,7 @@ public class MailpitProcessor {
             List<DevServicesSharedNetworkBuildItem> devServicesSharedNetworkBuildItem,
             BuildProducer<MailpitDevServicesConfigBuildItem> mailpitBuildItemBuildProducer,
             CombinedIndexBuildItem combinedIndexBuildItem,
-            NonApplicationRootPathBuildItem nonApplicationRootPathBuildItem,
-            ManagementInterfaceBuildTimeConfig managementInterfaceBuildTimeConfig) {
+            NonApplicationRootPathBuildItem nonApplicationRootPathBuildItem) {
         if (devService != null) {
             boolean shouldShutdownTheBroker = !MailpitConfig.isEqual(cfg, mailpitConfig);
             if (!shouldShutdownTheBroker) {
@@ -82,10 +80,9 @@ public class MailpitProcessor {
                 (launchMode.isTest() ? "(test) " : "") + "Mailpit Dev Services Starting:",
                 consoleInstalledBuildItem, loggingSetupBuildItem, IS_DOCKER_JAVA_STREAM_THREAD_PREDICATE);
         try {
-            var path = nonApplicationRootPathBuildItem.resolveManagementPath(
-                    MailpitProcessor.FEATURE,
-                    managementInterfaceBuildTimeConfig,
-                    launchMode);
+            var path = nonApplicationRootPathBuildItem.resolvePath(MailpitProcessor.FEATURE);
+
+            log.infof("Mailpit Dev Services Starting at: %s", path);
 
             devService = startMailpit(dockerStatusBuildItem, mailpitConfig, devServicesConfig,
                     !devServicesSharedNetworkBuildItem.isEmpty(), combinedIndexBuildItem.getIndex(), path);
