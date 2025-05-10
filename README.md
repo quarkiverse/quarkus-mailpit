@@ -15,7 +15,7 @@ Using this service has some obvious advantages when running in dev mode includin
 
 * Verify e-mail and their content without a real mail server
 * Prevent accidentally sending a customer an email while developing
-* Use the REST API to verify contents of real send emails and not mocked mail
+* Use the REST API to verify contents of real sent emails and not mocked mail
 * [Chaos Testing](https://docs.quarkiverse.io/quarkus-mailpit/dev/index.html#_chaos_testing) to verify your resilience in case of email failures
 * [12 Factor App: Backing services](https://12factor.net/backing-services) Treat backing services as attached resources
 * [12 Factor App: Dev/Prod Parity](https://12factor.net/dev-prod-parity) Keep development and production as similar as possible 
