@@ -85,6 +85,25 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         // max messages
         super.withEnv("MP_MAX_MESSAGES", Objects.toString(config.maxMessages()));
 
+        // SMTP relay configuration
+        config.smtpRelayHost().ifPresent(host -> super.withEnv("MP_SMTP_RELAY_HOST", host));
+        super.withEnv("MP_SMTP_RELAY_PORT", Objects.toString(config.smtpRelayPort()));
+        super.withEnv("MP_SMTP_RELAY_STARTTLS", Objects.toString(config.smtpRelayStarttls()));
+        super.withEnv("MP_SMTP_RELAY_TLS", Objects.toString(config.smtpRelayTls()));
+        super.withEnv("MP_SMTP_RELAY_ALLOW_INSECURE", Objects.toString(config.smtpRelayAllowInsecure()));
+        super.withEnv("MP_SMTP_RELAY_AUTH", config.smtpRelayAuth());
+        config.smtpRelayUsername().ifPresent(username -> super.withEnv("MP_SMTP_RELAY_USERNAME", username));
+        config.smtpRelayPassword().ifPresent(password -> super.withEnv("MP_SMTP_RELAY_PASSWORD", password));
+        config.smtpRelaySecret().ifPresent(secret -> super.withEnv("MP_SMTP_RELAY_SECRET", secret));
+        config.smtpRelayReturnPath().ifPresent(relayPath -> super.withEnv("MP_SMTP_RELAY_RETURN_PATH", relayPath));
+        config.smtpRelayOverrideFrom().ifPresent(from -> super.withEnv("MP_SMTP_RELAY_OVERRIDE_FROM", from));
+        config.smtpRelayAllowedRecipients()
+                .ifPresent(recipients -> super.withEnv("MP_SMTP_RELAY_ALLOWED_RECIPIENTS", recipients));
+        config.smtpRelayBlockedRecipients()
+                .ifPresent(recipients -> super.withEnv("MP_SMTP_RELAY_BLOCKED_RECIPIENTS", recipients));
+        super.withEnv("MP_SMTP_RELAY_ALL", Objects.toString(config.smtpRelayAll()));
+        config.smtpRelayMatching().ifPresent(matching -> super.withEnv("MP_SMTP_RELAY_MATCHING", matching));
+
         // forward the container logs
         super.withLogConsumer(new JbossContainerLogConsumer(log).withPrefix(MailpitProcessor.FEATURE));
     }
