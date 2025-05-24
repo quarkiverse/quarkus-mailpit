@@ -170,6 +170,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/dcdh"><img src="https://avatars.githubusercontent.com/u/5189615?v=4?s=100" width="100px;" alt="Damien Clément d'Huart"/><br /><sub><b>Damien Clément d'Huart</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mailpit/issues?q=author%3Adcdh" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/yoavgeva"><img src="https://avatars.githubusercontent.com/u/6544847?v=4?s=100" width="100px;" alt="Yoav Geva"/><br /><sub><b>Yoav Geva</b></sub></a><br /><a href="#ideas-yoavgeva" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://martinpanzer.de"><img src="https://avatars.githubusercontent.com/u/1223135?v=4?s=100" width="100px;" alt="Martin Panzer"/><br /><sub><b>Martin Panzer</b></sub></a><br /><a href="#ideas-Postremus" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>
