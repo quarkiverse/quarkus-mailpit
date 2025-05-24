@@ -188,6 +188,60 @@ This feature is particularly useful for:
 * Ensuring your application gracefully handles email delivery issues
 * Testing retry mechanisms in your email infrastructure
 
+[[smtp-relay-configuration]]
+== SMTP Relay Configuration
+
+Mailpit can be configured to relay emails to an external SMTP server. This is useful when you want to forward captured emails to a real mail server for delivery.
+
+For detailed information about SMTP relay configuration, refer to the https://mailpit.axllent.org/docs/configuration/smtp-relay/[official Mailpit SMTP relay documentation].
+
+The following configuration properties are available:
+
+[source,properties]
+----
+# SMTP relay host to forward emails to
+quarkus.mailpit.smtp-relay-host=smtp.gmail.com
+
+# SMTP relay port (default: 25)
+quarkus.mailpit.smtp-relay-port=587
+
+# Enable STARTTLS
+quarkus.mailpit.smtp-relay-starttls=true
+
+# Enable TLS
+quarkus.mailpit.smtp-relay-tls=true
+
+# Allow insecure TLS certificates
+quarkus.mailpit.smtp-relay-allow-insecure=false
+
+# Authentication mechanism (none, plain, login, cram-md5)
+quarkus.mailpit.smtp-relay-auth=plain
+
+# Authentication credentials
+quarkus.mailpit.smtp-relay-username=your-username
+quarkus.mailpit.smtp-relay-password=your-password
+
+# CRAM-MD5 authentication secret
+quarkus.mailpit.smtp-relay-secret=your-secret
+
+# Override Return-Path
+quarkus.mailpit.smtp-relay-return-path=return@example.com
+
+# Override From address
+quarkus.mailpit.smtp-relay-override-from=from@example.com
+
+# Regex to limit allowed relay addresses
+quarkus.mailpit.smtp-relay-allowed-recipients=@example\\.com$
+
+# Regex to block relay addresses
+quarkus.mailpit.smtp-relay-blocked-recipients=@blocked\\.com$
+
+# Automatically relay all incoming messages
+quarkus.mailpit.smtp-relay-all=false
+
+# Selectively relay messages matching regex pattern
+quarkus.mailpit.smtp-relay-matching=(user1@host1\\.com|user2@host2\\.com|@host3\\.com)$
+----
 
 [[extension-configuration-reference]]
 == Extension Configuration Reference
