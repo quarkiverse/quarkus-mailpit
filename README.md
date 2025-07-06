@@ -1,7 +1,11 @@
 <div align="center">
-<img src="https://github.com/quarkiverse/quarkus-mailpit/blob/main/docs/modules/ROOT/assets/images/quarkus.svg" width="67" height="70" ><img src="https://github.com/quarkiverse/quarkus-mailpit/blob/main/docs/modules/ROOT/assets/images/plus-sign.svg" height="70" ><img src="https://github.com/quarkiverse/quarkus-mailpit/blob/main/docs/modules/ROOT/assets/images/mailpit.svg" height="70" >
+  <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+    <img src="https://raw.githubusercontent.com/quarkiverse/.github/main/assets/images/quarkus.svg" alt="Quarkus logo" style="height: 70px; width: auto;">
+    <img src="https://raw.githubusercontent.com/quarkiverse/.github/main/assets/images/plus-sign.svg" alt="Plus sign" style="height: 70px; width: auto;">
+    <img src="https://raw.githubusercontent.com/quarkiverse/quarkus-mailpit/main/docs/modules/ROOT/assets/images/mailpit.svg" alt="Mailpit logo" style="height: 70px; width: auto;">
+  </div>
 
-# Quarkus Mailpit
+  <h1>Quarkus Mailpit</h1>
 </div>
 <br>
 
