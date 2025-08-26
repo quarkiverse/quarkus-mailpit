@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.quarkiverse.mailpit</groupId>
         <artifactId>quarkus-mailpit-parent</artifactId>
-        <version>999-SNAPSHOT</version>
+        <version>1.7.0</version>
     </parent>
     <artifactId>quarkus-mailpit-testing</artifactId>
     <name>Quarkus Mailpit - Testing</name>
