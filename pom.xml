@@ -84,6 +84,7 @@
       </activation>
       <modules>
         <module>integration-tests</module>
+        <module>integration-tests-container</module>
       </modules>
     </profile>
   </profiles>
