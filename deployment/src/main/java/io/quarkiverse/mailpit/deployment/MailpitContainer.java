@@ -66,11 +66,10 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         super.withLabel(MailpitProcessor.DEV_SERVICE_LABEL, MailpitProcessor.FEATURE);
         super.withEnv("MP_WEBROOT", path);
         super.withNetwork(Network.SHARED);
-        super.waitingFor(Wait.forHttp(path).forPort(PORT_HTTP));
+        super.waitingFor(Wait.forLogMessage(".*\\[http\\] accessible via.*\n", 1));
 
         // Mapped http port
         this.mappedFixedPort = config.mappedHttpPort();
-        config.mappedHttpPort().ifPresent(fixedPort -> super.addFixedExposedPort(fixedPort, PORT_HTTP));
 
         // configure verbose container logging
         if (config.verbose()) {
@@ -112,6 +111,13 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
     protected void configure() {
         super.configure();
 
+        // this forces the HTTP port to a fixed port if configured by the user
+        if (this.mappedFixedPort.isPresent()) {
+            addFixedExposedPort(this.mappedFixedPort.getAsInt(), PORT_HTTP);
+        } else {
+            addExposedPorts(PORT_HTTP);
+        }
+
         if (useSharedNetwork) {
             hostName = ConfigureUtil.configureSharedNetwork(this, MailpitProcessor.FEATURE);
             return;
@@ -122,15 +128,9 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         Optional<Integer> mailerPortConfig = ConfigProvider.getConfig().getOptionalValue("quarkus.mailer.port", Integer.class);
         if (mailerPortConfig.isPresent()) {
             addFixedExposedPort(mailerPortConfig.get(), PORT_SMTP);
-            addExposedPort(PORT_HTTP);
         } else {
-            addExposedPorts(PORT_SMTP, PORT_HTTP);
+            addExposedPorts(PORT_SMTP);
         }
-    }
-
-    @Override
-    public String getHost() {
-        return useSharedNetwork ? this.hostName : super.getHost();
     }
 
     /**
@@ -141,39 +141,34 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
     public Map<String, String> getExposedConfig() {
         Map<String, String> exposed = new HashMap<>();
 
-        final String port = Objects.toString(getMappedPort(PORT_SMTP));
+        // host and ports for configuration
+        final String host = getHost();
+        final String mailerHost = useSharedNetwork ? hostName : host;
+        final String mailpitHttpServer = String.format("http://%s:%d", host, getMappedPort(PORT_HTTP));
+        final Integer smtpPort = useSharedNetwork ? PORT_SMTP : getMappedPort(PORT_SMTP);
+        final Integer httpPort = getMappedPort(PORT_HTTP);
 
         // mailpit specific
-        exposed.put(CONFIG_SMTP_PORT, port);
-        exposed.put(CONFIG_HTTP_HOST, getHost());
-        exposed.put(CONFIG_HTTP_PORT, String.valueOf(getMappedPort(PORT_HTTP)));
-        exposed.put(CONFIG_HTTP_SERVER, getMailpitHttpServer());
+        exposed.put(CONFIG_HTTP_HOST, host);
+        exposed.put(CONFIG_HTTP_PORT, String.valueOf(httpPort));
+        exposed.put(CONFIG_HTTP_SERVER, mailpitHttpServer);
+        exposed.put(CONFIG_SMTP_PORT, String.valueOf(smtpPort));
         exposed.putAll(super.getEnvMap());
 
         // quarkus mailer default
-        exposed.put("quarkus.mailer.port", port);
-        exposed.put("quarkus.mailer.host", getHost());
+        exposed.put("quarkus.mailer.port", String.valueOf(smtpPort));
+        exposed.put("quarkus.mailer.host", mailerHost);
         exposed.put("quarkus.mailer.mock", "false");
 
         // quarkus mailer named mailers
         Collection<AnnotationInstance> namedMailers = index.getAnnotations(MailerName.class.getName());
         for (AnnotationInstance namedMailer : namedMailers) {
             String name = namedMailer.value().asString();
-            exposed.put("quarkus.mailer." + name + ".port", port);
-            exposed.put("quarkus.mailer." + name + ".host", getHost());
+            exposed.put("quarkus.mailer." + name + ".port", String.valueOf(smtpPort));
+            exposed.put("quarkus.mailer." + name + ".host", mailerHost);
             exposed.put("quarkus.mailer." + name + ".mock", "false");
         }
 
         return exposed;
-    }
-
-    /**
-     * Get the calculated Mailpit UI location for use in the DevUI.
-     *
-     * @return the calculated full URL to the Mailpit UI
-     */
-
-    public String getMailpitHttpServer() {
-        return String.format("http://%s:%d", getHost(), this.mappedFixedPort.orElseGet(() -> getMappedPort(PORT_HTTP)));
     }
 }

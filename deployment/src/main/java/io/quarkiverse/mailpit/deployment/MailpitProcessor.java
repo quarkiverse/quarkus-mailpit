@@ -84,8 +84,10 @@ public class MailpitProcessor {
 
             log.infof("Mailpit Dev Services Starting at: %s", path);
 
+            boolean useSharedNetwork = DevServicesSharedNetworkBuildItem.isSharedNetworkRequired(devServicesConfig,
+                    devServicesSharedNetworkBuildItem);
             devService = startMailpit(dockerStatusBuildItem, mailpitConfig, devServicesConfig,
-                    !devServicesSharedNetworkBuildItem.isEmpty(), combinedIndexBuildItem.getIndex(), path);
+                    useSharedNetwork, combinedIndexBuildItem.getIndex(), path);
             if (devService == null) {
                 compressor.closeAndDumpCaptured();
             } else {
