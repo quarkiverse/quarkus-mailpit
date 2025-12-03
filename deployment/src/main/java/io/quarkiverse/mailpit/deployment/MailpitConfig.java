@@ -21,7 +21,7 @@ public interface MailpitConfig {
     /**
      * Default docker image name.
      */
-    String DEFAULT_IMAGE = "axllent/mailpit:v1.24.2";
+    String DEFAULT_IMAGE = "axllent/mailpit:v1.28.0";
 
     /**
      * If Dev Services for Mailpit has been explicitly enabled or disabled. Dev Services are generally enabled

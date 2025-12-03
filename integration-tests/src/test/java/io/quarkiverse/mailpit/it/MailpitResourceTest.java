@@ -124,9 +124,9 @@ public class MailpitResourceTest {
         try {
             mailbox.setChaos(
                     ChaosConfig.builder()
-                            .authentication(451, 0)
-                            .sender(451, 100)
-                            .recipient(451, 0)
+                            .authentication(451L, 0L)
+                            .sender(451L, 100L)
+                            .recipient(451L, 0L)
                             .build());
 
             Response response = given()
@@ -153,9 +153,9 @@ public class MailpitResourceTest {
     public void ensureChaosTestingRecipientReturnsError() {
         mailbox.setChaos(
                 ChaosConfig.builder()
-                        .authentication(451, 0)
-                        .sender(451, 0)
-                        .recipient(550, 100)
+                        .authentication(451L, 0L)
+                        .sender(451L, 0L)
+                        .recipient(550L, 100L)
                         .build());
 
         Response response = given()

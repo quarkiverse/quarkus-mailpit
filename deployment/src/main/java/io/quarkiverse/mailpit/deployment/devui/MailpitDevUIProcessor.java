@@ -14,11 +14,7 @@ import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.LaunchModeBuildItem;
-import io.quarkus.devui.spi.page.CardPageBuildItem;
-import io.quarkus.devui.spi.page.FooterPageBuildItem;
-import io.quarkus.devui.spi.page.Page;
-import io.quarkus.devui.spi.page.PageBuilder;
-import io.quarkus.devui.spi.page.WebComponentPageBuilder;
+import io.quarkus.devui.spi.page.*;
 import io.quarkus.vertx.core.deployment.CoreVertxBuildItem;
 import io.quarkus.vertx.http.deployment.NonApplicationRootPathBuildItem;
 import io.quarkus.vertx.http.deployment.RouteBuildItem;
@@ -63,12 +59,12 @@ public class MailpitDevUIProcessor {
 
             // SMTP
             if (config.containsKey(MailpitContainer.CONFIG_SMTP_PORT)) {
-                final PageBuilder versionPage = Page.externalPageBuilder("SMTP Port")
+                final PageBuilder<ExternalPageBuilder> portPage = Page.externalPageBuilder("SMTP Port")
                         .icon("font-awesome-solid:envelope")
                         .doNotEmbed()
                         .url("https://github.com/axllent/mailpit")
                         .staticLabel(config.getOrDefault(MailpitContainer.CONFIG_SMTP_PORT, "0"));
-                card.addPage(versionPage);
+                card.addPage(portPage);
             }
 
             // UI
@@ -84,7 +80,6 @@ public class MailpitDevUIProcessor {
                         .icon("font-awesome-solid:envelopes-bulk"));
             }
 
-            card.setCustomCard("qwc-mailpit-card.js");
             cardPageBuildItemBuildProducer.produce(card);
 
             // Mailpit Container Log Console
