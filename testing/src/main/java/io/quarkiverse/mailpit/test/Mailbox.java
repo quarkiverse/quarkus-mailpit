@@ -134,7 +134,7 @@ public class Mailbox {
         final TestingApi testingApi = getTestingApi();
 
         try {
-            testingApi.setChaosParams(convertChaosTriggers(chaosConfig.getChaosTriggers()));
+            testingApi.setChaosParams(chaosConfig.getChaosTriggers());
         } catch (ApiException e) {
             rethrow(e);
         }
@@ -149,37 +149,10 @@ public class Mailbox {
 
         try {
             ChaosConfig chaosConfig = ChaosConfig.builder().build();
-            testingApi.setChaosParams(convertChaosTriggers(chaosConfig.getChaosTriggers()));
+            testingApi.setChaosParams(chaosConfig.getChaosTriggers());
         } catch (ApiException e) {
             rethrow(e);
         }
-    }
-
-    /**
-     * Converts an internal ChaosTrigger to the OpenAPI Trigger.
-     *
-     * @param chaosTrigger the internal representation
-     * @return the OpenAPI Trigger model
-     */
-    private Trigger convertTrigger(ChaosTrigger chaosTrigger) {
-        Trigger openApiTrigger = new Trigger();
-        openApiTrigger.setErrorCode((long) chaosTrigger.getErrorCode());
-        openApiTrigger.setProbability((long) chaosTrigger.getProbability());
-        return openApiTrigger;
-    }
-
-    /**
-     * Converts an internal ChaosTriggers to the OpenAPI Triggers.
-     *
-     * @param chaosTriggers the internal triggers
-     * @return the OpenAPI Triggers model
-     */
-    private Triggers convertChaosTriggers(ChaosTriggers chaosTriggers) {
-        Triggers openApiTriggers = new Triggers();
-        openApiTriggers.setAuthentication(convertTrigger(chaosTriggers.getAuthentication()));
-        openApiTriggers.setRecipient(convertTrigger(chaosTriggers.getRecipient()));
-        openApiTriggers.setSender(convertTrigger(chaosTriggers.getSender()));
-        return openApiTriggers;
     }
 
     /**
