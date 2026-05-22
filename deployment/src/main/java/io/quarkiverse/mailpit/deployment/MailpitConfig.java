@@ -1,6 +1,5 @@
 package io.quarkiverse.mailpit.deployment;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -29,6 +28,18 @@ public interface MailpitConfig {
      */
     @WithDefault("true")
     boolean enabled();
+
+    /**
+     * When Dev Services for Mailpit is shared, Quarkus will attempt to find and use already running containers.
+     */
+    @WithDefault("true")
+    boolean shared();
+
+    /**
+     * The name of the service, used when discovering already running containers.
+     */
+    @WithDefault("mailpit")
+    String serviceName();
 
     /**
      * The Mailpit container image to use.
@@ -169,72 +180,5 @@ public interface MailpitConfig {
      * remaining addresses will still be sent the message provided they match the pattern.
      */
     Optional<String> smtpRelayMatching();
-
-    static boolean isEqual(MailpitConfig d1, MailpitConfig d2) {
-        if (!Objects.equals(d1.enabled(), d2.enabled())) {
-            return false;
-        }
-        if (!Objects.equals(d1.imageName(), d2.imageName())) {
-            return false;
-        }
-        if (!Objects.equals(d1.verbose(), d2.verbose())) {
-            return false;
-        }
-        if (!Objects.equals(d1.enableChaos(), d2.enableChaos())) {
-            return false;
-        }
-        if (!Objects.equals(d1.maxMessages(), d2.maxMessages())) {
-            return false;
-        }
-        if (!Objects.equals(d1.mappedHttpPort(), d2.mappedHttpPort())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayHost(), d2.smtpRelayHost())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayPort(), d2.smtpRelayPort())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayStarttls(), d2.smtpRelayStarttls())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayTls(), d2.smtpRelayTls())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayAllowInsecure(), d2.smtpRelayAllowInsecure())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayAuth(), d2.smtpRelayAuth())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayUsername(), d2.smtpRelayUsername())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayPassword(), d2.smtpRelayPassword())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelaySecret(), d2.smtpRelaySecret())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayReturnPath(), d2.smtpRelayReturnPath())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayOverrideFrom(), d2.smtpRelayOverrideFrom())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayAllowedRecipients(), d2.smtpRelayAllowedRecipients())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayBlockedRecipients(), d2.smtpRelayBlockedRecipients())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayAll(), d2.smtpRelayAll())) {
-            return false;
-        }
-        if (!Objects.equals(d1.smtpRelayMatching(), d2.smtpRelayMatching())) {
-            return false;
-        }
-        return true;
-    }
 
 }

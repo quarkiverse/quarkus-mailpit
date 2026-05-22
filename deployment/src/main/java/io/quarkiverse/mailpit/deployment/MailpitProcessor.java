@@ -1,41 +1,45 @@
 package io.quarkiverse.mailpit.deployment;
 
+import static io.quarkus.devservices.common.ContainerLocator.locateContainerWithLabels;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 import org.jboss.jandex.IndexView;
 import org.jboss.logging.Logger;
 
-import io.quarkus.bootstrap.classloading.QuarkusClassLoader;
-import io.quarkus.deployment.IsNormal;
-import io.quarkus.deployment.annotations.BuildProducer;
+import io.quarkus.deployment.Feature;
+import io.quarkus.deployment.IsDevServicesSupportedByLaunchMode;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.BuildSteps;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
+import io.quarkus.deployment.builditem.DevServicesComposeProjectBuildItem;
 import io.quarkus.deployment.builditem.DevServicesResultBuildItem;
 import io.quarkus.deployment.builditem.DevServicesSharedNetworkBuildItem;
 import io.quarkus.deployment.builditem.DockerStatusBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.LaunchModeBuildItem;
-import io.quarkus.deployment.console.ConsoleInstalledBuildItem;
-import io.quarkus.deployment.console.StartupLogCompressor;
+import io.quarkus.deployment.builditem.Startable;
 import io.quarkus.deployment.dev.devservices.DevServicesConfig;
-import io.quarkus.deployment.logging.LoggingSetupBuildItem;
+import io.quarkus.devservices.common.ComposeLocator;
+import io.quarkus.devservices.common.ContainerLocator;
+import io.quarkus.runtime.LaunchMode;
 import io.quarkus.vertx.http.deployment.NonApplicationRootPathBuildItem;
 
 /**
  * Starts a Mailpit server as dev service if needed.
  */
-@BuildSteps(onlyIfNot = IsNormal.class, onlyIf = DevServicesConfig.Enabled.class)
+@BuildSteps(onlyIf = { IsDevServicesSupportedByLaunchMode.class, DevServicesConfig.Enabled.class })
 public class MailpitProcessor {
 
     private static final Logger log = Logger.getLogger(MailpitProcessor.class);
 
     public static final String FEATURE = "mailpit";
-
-    private static final Predicate<Thread> IS_DOCKER_JAVA_STREAM_THREAD_PREDICATE = (thread) -> thread.getName()
-            .startsWith("docker-java-stream");
 
     /**
      * Label to add to shared Dev Service for Mailpit running in containers.
@@ -43,9 +47,8 @@ public class MailpitProcessor {
      */
     static final String DEV_SERVICE_LABEL = "quarkus-dev-service-mailpit";
 
-    static volatile DevServicesResultBuildItem.RunningDevService devService;
-    static volatile MailpitConfig cfg;
-    static volatile boolean first = true;
+    private static final ContainerLocator mailpitContainerLocator = locateContainerWithLabels(MailpitContainer.PORT_SMTP,
+            DEV_SERVICE_LABEL);
 
     @BuildStep
     FeatureBuildItem feature() {
@@ -57,111 +60,115 @@ public class MailpitProcessor {
             DockerStatusBuildItem dockerStatusBuildItem,
             LaunchModeBuildItem launchMode,
             MailpitConfig mailpitConfig,
-            Optional<ConsoleInstalledBuildItem> consoleInstalledBuildItem,
-            LoggingSetupBuildItem loggingSetupBuildItem,
             DevServicesConfig devServicesConfig,
             List<DevServicesSharedNetworkBuildItem> devServicesSharedNetworkBuildItem,
-            BuildProducer<MailpitDevServicesConfigBuildItem> mailpitBuildItemBuildProducer,
             CombinedIndexBuildItem combinedIndexBuildItem,
-            NonApplicationRootPathBuildItem nonApplicationRootPathBuildItem) {
-        if (devService != null) {
-            boolean shouldShutdownTheBroker = !MailpitConfig.isEqual(cfg, mailpitConfig);
-            if (!shouldShutdownTheBroker) {
-                if (devService.isOwner()) {
-                    mailpitBuildItemBuildProducer.produce(new MailpitDevServicesConfigBuildItem(devService.getConfig()));
-                }
-                return devService.toBuildItem();
-            }
-            shutdown();
-            cfg = null;
-        }
-
-        StartupLogCompressor compressor = new StartupLogCompressor(
-                (launchMode.isTest() ? "(test) " : "") + "Mailpit Dev Services Starting:",
-                consoleInstalledBuildItem, loggingSetupBuildItem, IS_DOCKER_JAVA_STREAM_THREAD_PREDICATE);
-        try {
-            var path = nonApplicationRootPathBuildItem.resolvePath(MailpitProcessor.FEATURE);
-
-            log.infof("Mailpit Dev Services Starting at: %s", path);
-
-            boolean useSharedNetwork = DevServicesSharedNetworkBuildItem.isSharedNetworkRequired(devServicesConfig,
-                    devServicesSharedNetworkBuildItem);
-            devService = startMailpit(dockerStatusBuildItem, mailpitConfig, devServicesConfig,
-                    useSharedNetwork, combinedIndexBuildItem.getIndex(), path);
-            if (devService == null) {
-                compressor.closeAndDumpCaptured();
-            } else {
-                compressor.close();
-            }
-        } catch (Throwable t) {
-            compressor.closeAndDumpCaptured();
-            throw new RuntimeException(t);
-        }
-
-        if (devService == null) {
+            NonApplicationRootPathBuildItem nonApplicationRootPathBuildItem,
+            DevServicesComposeProjectBuildItem composeProjectBuildItem) {
+        if (devServiceDisabled(dockerStatusBuildItem, mailpitConfig)) {
             return null;
         }
 
-        if (devService.isOwner()) {
-            log.info("Dev Services for Mailpit started.");
-            mailpitBuildItemBuildProducer.produce(new MailpitDevServicesConfigBuildItem(devService.getConfig()));
+        boolean useSharedNetwork = DevServicesSharedNetworkBuildItem.isSharedNetworkRequired(devServicesConfig,
+                devServicesSharedNetworkBuildItem);
+        IndexView index = combinedIndexBuildItem.getIndex();
+        String path = nonApplicationRootPathBuildItem.resolvePath(FEATURE);
+
+        DevServicesResultBuildItem discovered = discoverRunningService(composeProjectBuildItem, mailpitConfig,
+                launchMode.getLaunchMode(), useSharedNetwork, index, path);
+        if (discovered != null) {
+            return discovered;
         }
 
-        // Configure the watch dog
-        if (first) {
-            first = false;
-            Runnable closeTask = () -> {
-                if (devService != null) {
-                    shutdown();
-
-                    log.info("Dev Services for Mailpit shut down.");
-                }
-                first = true;
-                devService = null;
-                cfg = null;
-            };
-            QuarkusClassLoader cl = (QuarkusClassLoader) Thread.currentThread().getContextClassLoader();
-            ((QuarkusClassLoader) cl.parent()).addCloseTask(closeTask);
-        }
-        cfg = mailpitConfig;
-        return devService.toBuildItem();
+        return DevServicesResultBuildItem.owned()
+                .feature(Feature.MAILER)
+                .serviceConfig(mailpitConfig)
+                .startable(() -> createContainer(composeProjectBuildItem, mailpitConfig, devServicesConfig,
+                        useSharedNetwork, launchMode.getLaunchMode(), index, path))
+                .configProvider(toStartableConfigProvider(index))
+                .postStartHook(container -> log.infof(
+                        "Dev Services for Mailpit started. Mailpit UI is available at %s",
+                        container.getConnectionInfo()))
+                .build();
     }
 
-    private DevServicesResultBuildItem.RunningDevService startMailpit(DockerStatusBuildItem dockerStatusBuildItem,
+    private Startable createContainer(DevServicesComposeProjectBuildItem composeProjectBuildItem,
             MailpitConfig mailpitConfig, DevServicesConfig devServicesConfig, boolean useSharedNetwork,
-            IndexView index, String path) {
+            LaunchMode launchMode, IndexView index, String path) {
+        MailpitContainer container = new MailpitContainer(mailpitConfig, composeProjectBuildItem.getDefaultNetworkId(),
+                useSharedNetwork, index, path)
+                .withSharedServiceLabel(launchMode, mailpitConfig.serviceName());
+        devServicesConfig.timeout().ifPresent(container::withStartupTimeout);
+        return container;
+    }
+
+    private DevServicesResultBuildItem discoverRunningService(DevServicesComposeProjectBuildItem composeProjectBuildItem,
+            MailpitConfig mailpitConfig, LaunchMode launchMode, boolean useSharedNetwork, IndexView index, String path) {
+        Map<Integer, Integer> publicPorts = new HashMap<>();
+        AtomicReference<String> containerId = new AtomicReference<>();
+        AtomicReference<String> host = new AtomicReference<>();
+
+        Optional<DevServicesResultBuildItem> fromLocator = mailpitContainerLocator
+                .locateContainer(mailpitConfig.serviceName(), mailpitConfig.shared(), launchMode,
+                        (privatePort, address) -> {
+                            publicPorts.put(privatePort, address.getPort());
+                            containerId.set(address.getId());
+                            host.set(address.getHost());
+                        })
+                .flatMap(
+                        id -> buildDiscoveredResult(publicPorts, containerId.get(), host.get(), useSharedNetwork, index, path));
+
+        if (fromLocator.isPresent()) {
+            return fromLocator.get();
+        }
+
+        return ComposeLocator.locateContainer(composeProjectBuildItem,
+                List.of(mailpitConfig.imageName(), "mailpit", "axllent/mailpit"),
+                MailpitContainer.PORT_SMTP, launchMode, useSharedNetwork)
+                .flatMap(address -> {
+                    publicPorts.put(MailpitContainer.PORT_SMTP, address.getPort());
+                    host.set(address.getHost());
+                    containerId.set(address.getId());
+                    return mailpitContainerLocator.locateContainer(mailpitConfig.serviceName(), mailpitConfig.shared(),
+                            launchMode,
+                            (privatePort, addr) -> publicPorts.put(privatePort, addr.getPort()))
+                            .flatMap(ignored -> buildDiscoveredResult(publicPorts, containerId.get(), host.get(),
+                                    useSharedNetwork, index, path));
+                })
+                .orElse(null);
+    }
+
+    private Optional<DevServicesResultBuildItem> buildDiscoveredResult(Map<Integer, Integer> publicPorts, String containerId,
+            String host, boolean useSharedNetwork, IndexView index, String path) {
+        Integer smtpPort = publicPorts.get(MailpitContainer.PORT_SMTP);
+        Integer httpPort = publicPorts.get(MailpitContainer.PORT_HTTP);
+        if (smtpPort == null || httpPort == null || host == null || containerId == null) {
+            return Optional.empty();
+        }
+        return Optional.of(DevServicesResultBuildItem.discovered()
+                .feature(Feature.MAILER)
+                .containerId(containerId)
+                .config(MailpitContainer.discoveredConfig(host, smtpPort, httpPort, path, index, useSharedNetwork))
+                .build());
+    }
+
+    private static Map<String, Function<Startable, String>> toStartableConfigProvider(IndexView index) {
+        Map<String, Function<Startable, String>> providers = new LinkedHashMap<>();
+        MailpitContainer.applicationConfigProvider(index)
+                .forEach((key, value) -> providers.put(key, startable -> value.apply((MailpitContainer) startable)));
+        return providers;
+    }
+
+    private boolean devServiceDisabled(DockerStatusBuildItem dockerStatusBuildItem, MailpitConfig mailpitConfig) {
         if (!mailpitConfig.enabled()) {
-            // explicitly disabled
-            log.warn("Not starting dev services for Mailpit, as it has been disabled in the config.");
-            return null;
+            log.debug("Not starting dev services for Mailpit, as it has been disabled in the config.");
+            return true;
         }
 
         if (!dockerStatusBuildItem.isContainerRuntimeAvailable()) {
             log.warn("Docker/Podman isn't working, not starting dev services for Mailpit.");
-            return null;
+            return true;
         }
-
-        final MailpitContainer mailpit = new MailpitContainer(mailpitConfig, useSharedNetwork, index, path);
-        devServicesConfig.timeout().ifPresent(mailpit::withStartupTimeout);
-        mailpit.start();
-
-        return new DevServicesResultBuildItem.RunningDevService(FEATURE,
-                mailpit.getContainerId(),
-                mailpit::close,
-                mailpit.getExposedConfig());
+        return false;
     }
-
-    private void shutdown() {
-        if (devService != null) {
-            try {
-                log.info("Dev Services for Mailpit shutting down...");
-                devService.close();
-            } catch (Throwable e) {
-                log.error("Failed to stop the Mailpit server", e);
-            } finally {
-                devService = null;
-            }
-        }
-    }
-
 }
