@@ -16,6 +16,7 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
+import io.quarkus.deployment.builditem.Startable;
 import io.quarkus.devservices.common.ConfigureUtil;
 import io.quarkus.mailer.MailerName;
 
@@ -28,8 +29,9 @@ import io.quarkus.mailer.MailerName;
  * Exposed ports: 1025 (smtp)
  * Exposed ports: 8025 (http user interface)
  */
-public final class MailpitContainer extends GenericContainer<MailpitContainer> {
+public final class MailpitContainer extends GenericContainer<MailpitContainer> implements Startable {
 
+    public static final String WEBROOT = "MP_WEBROOT";
     public static final String CONFIG_SMTP_PORT = MailpitProcessor.FEATURE + ".smtp.port";
     public static final String CONFIG_HTTP_SERVER = MailpitProcessor.FEATURE + ".http.server";
     public static final String CONFIG_HTTP_HOST = MailpitProcessor.FEATURE + ".http.host";
@@ -64,7 +66,7 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         this.index = index;
 
         super.withLabel(MailpitProcessor.DEV_SERVICE_LABEL, MailpitProcessor.FEATURE);
-        super.withEnv("MP_WEBROOT", path);
+        super.withEnv(WEBROOT, path);
         super.withNetwork(Network.SHARED);
         super.waitingFor(Wait.forLogMessage(".*\\[http\\] accessible via.*\n", 1));
 
@@ -131,6 +133,19 @@ public final class MailpitContainer extends GenericContainer<MailpitContainer> {
         } else {
             addExposedPorts(PORT_SMTP);
         }
+    }
+
+    @Override
+    public void close() {
+        super.close();
+    }
+
+    @Override
+    public String getConnectionInfo() {
+        final String host = getHost();
+        final String mailerHost = useSharedNetwork ? hostName : host;
+        final Integer smtpPort = useSharedNetwork ? PORT_SMTP : getMappedPort(PORT_SMTP);
+        return mailerHost + ":" + smtpPort;
     }
 
     /**
