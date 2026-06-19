@@ -29,8 +29,10 @@ import jakarta.ws.rs.core.MediaType;
 
 import io.quarkus.mailer.Attachment;
 import io.quarkus.mailer.Mail;
+import io.quarkus.mailer.MailTemplate;
 import io.quarkus.mailer.Mailer;
 import io.quarkus.mailer.MailerName;
+import io.quarkus.qute.Location;
 import io.vertx.ext.mail.MailClient;
 import io.vertx.ext.mail.MailMessage;
 
@@ -42,6 +44,11 @@ public class MailpitResource {
     @Inject
     @MailerName("smtp1")
     Mailer mailer;
+
+    @Inject
+    @MailerName("smtp1")
+    @Location("villain-alert")
+    MailTemplate villainAlert;
 
     @Inject
     MailClient vertxClient;
@@ -74,6 +81,21 @@ public class MailpitResource {
         }
 
         return count + " emails sent!!";
+    }
+
+    @Path("/alert/template")
+    @GET
+    public String villainAlertTemplate() {
+        villainAlert
+                .to("superheroes@quarkus.io")
+                .from("admin@hallofjustice.net")
+                .subject("WARNING: Super Villain Alert")
+                .data("villain", "Lex Luthor")
+                .data("location", "Metropolis")
+                .send()
+                .await().indefinitely();
+
+        return "Superheroes alerted via Qute template!!";
     }
 
     @Path("/alert/html")

@@ -11,8 +11,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import io.quarkus.mailer.Mail;
+import io.quarkus.mailer.MailTemplate;
 import io.quarkus.mailer.Mailer;
 import io.quarkus.mailer.MailerName;
+import io.quarkus.qute.Location;
 
 @Path("/mailpit")
 @Produces(MediaType.TEXT_PLAIN)
@@ -22,6 +24,26 @@ public class MailpitResource {
     @Inject
     @MailerName("smtp1")
     Mailer mailer;
+
+    @Inject
+    @MailerName("smtp1")
+    @Location("villain-alert")
+    MailTemplate villainAlert;
+
+    @Path("/alert/template")
+    @GET
+    public String villainAlertTemplate() {
+        villainAlert
+                .to("superheroes@quarkus.io")
+                .from("admin@hallofjustice.net")
+                .subject("WARNING: Super Villain Alert")
+                .data("villain", "Lex Luthor")
+                .data("location", "Metropolis")
+                .send()
+                .await().indefinitely();
+
+        return "Superheroes alerted via Qute template!!";
+    }
 
     @Path("/alert")
     @GET

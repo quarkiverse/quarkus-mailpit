@@ -2,6 +2,7 @@ package io.quarkiverse.mailpit.it;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.containsStringIgnoringCase;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -51,6 +52,23 @@ public class MailpitResourceTest {
         assertThat(message.getTo().get(0).getAddress(), is("superheroes@quarkus.io"));
         assertThat(message.getSubject(), is("WARNING: Super Villain Alert"));
         assertThat(message.getText(), is("Lex Luthor has been seen in Metropolis!\r\n"));
+    }
+
+    @Test
+    public void testAlertTemplate() {
+        given()
+                .when().get("/mailpit/alert/template")
+                .then()
+                .statusCode(200)
+                .body(is("Superheroes alerted via Qute template!!"));
+
+        Message message = mailbox.findFirst("admin@hallofjustice.net");
+        assertThat(message, notNullValue());
+        assertThat(message.getTo().get(0).getAddress(), is("superheroes@quarkus.io"));
+        assertThat(message.getSubject(), is("WARNING: Super Villain Alert"));
+        assertThat(message.getText(), containsString("Lex Luthor has been seen in Metropolis!"));
+        assertThat(message.getHTML(), containsString("<strong>Lex Luthor</strong>"));
+        assertThat(message.getHTML(), containsString("<em>Metropolis</em>"));
     }
 
     @Test
