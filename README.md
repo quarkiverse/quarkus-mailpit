@@ -180,6 +180,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/eijckron"><img src="https://avatars.githubusercontent.com/u/4891949?v=4?s=100" width="100px;" alt="Ronald van Eijck"/><br /><sub><b>Ronald van Eijck</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mailpit/commits?author=eijckron" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mhagnumdw"><img src="https://avatars.githubusercontent.com/u/17688846?v=4?s=100" width="100px;" alt="mhagnumdw"/><br /><sub><b>mhagnumdw</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mailpit/issues?q=author%3Amhagnumdw" title="Bug reports">🐛</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/matheusandre1"><img src="https://avatars.githubusercontent.com/u/92062874?v=4?s=100" width="100px;" alt="Matheus André"/><br /><sub><b>Matheus André</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mailpit/commits?author=matheusandre1" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
