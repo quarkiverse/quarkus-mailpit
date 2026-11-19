@@ -24,11 +24,7 @@
 		<tag>HEAD</tag>
 	</scm>
 	<properties>
-		<compiler-plugin.version>3.16.0</compiler-plugin.version>
-		<maven.compiler.release>17</maven.compiler.release>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<quarkus.version>3.33.1</quarkus.version>
+		<quarkus.version>4.0.0</quarkus.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -49,15 +45,6 @@
 					<artifactId>quarkus-maven-plugin</artifactId>
 					<version>${quarkus.version}</version>
 					<extensions>true</extensions>
-				</plugin>
-				<plugin>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>${compiler-plugin.version}</version>
-					<configuration>
-						<compilerArgs>
-							<arg>-parameters</arg>
-						</compilerArgs>
-					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>

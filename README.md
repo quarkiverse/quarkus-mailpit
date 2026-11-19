@@ -132,6 +132,15 @@ public class MailpitResourceTest {
 }
 ```
 
+## Compatibility
+
+| Mailpit extension version | Quarkus version |
+| ------------------------- | --------------- |
+| 2.1.x                     | 3.33.1+         |
+| 3.x                       | 4.0.0+          |
+
+3.x targets Quarkus 4 and requires JDK 21. If you are still on Quarkus 3, stay on 2.1.x, which is maintained from the `2.x` branch.
+
 ## 🧑‍💻 Contributing
 
 - Contribution is the best way to support and get involved in community!

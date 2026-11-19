@@ -31,6 +31,11 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-devjsonrpc-deployment-spi</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>io.quarkiverse.mailpit</groupId>
       <artifactId>quarkus-mailpit</artifactId>
       <version>${project.version}</version>
