@@ -4,23 +4,25 @@ import io.quarkiverse.mailpit.deployment.MailpitConfig;
 import io.quarkiverse.mailpit.deployment.MailpitProcessor;
 import io.quarkiverse.mailpit.runtime.MailpitDevUiJsonRpc;
 import io.quarkiverse.mailpit.runtime.MailpitUiProxy;
+import io.quarkus.core.deployment.service.ServiceRegistrar;
 import io.quarkus.deployment.IsDevelopment;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
-import io.quarkus.deployment.annotations.ExecutionTime;
-import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.LaunchModeBuildItem;
 import io.quarkus.devjsonrpc.spi.JsonRPCProvidersBuildItem;
 import io.quarkus.devui.spi.page.*;
-import io.quarkus.vertx.core.deployment.CoreVertxBuildItem;
 import io.quarkus.vertx.http.deployment.NonApplicationRootPathBuildItem;
 import io.quarkus.vertx.http.deployment.RouteBuildItem;
+import io.quarkus.vertx.http.runtime.RouteHandler;
 import io.quarkus.vertx.http.runtime.management.ManagementInterfaceBuildTimeConfig;
+import io.vertx.core.Vertx;
 
 /**
  * Dev UI card for displaying important details such Mailpit embedded UI.
  */
 public class MailpitDevUIProcessor {
+
+    private static final String UI_PROXY_SERVICE = "io.quarkiverse.mailpit.ui-proxy";
 
     @BuildStep
     JsonRPCProvidersBuildItem registerJsonRpc() {
@@ -28,22 +30,25 @@ public class MailpitDevUIProcessor {
     }
 
     @BuildStep(onlyIf = IsDevelopment.class)
-    @Record(ExecutionTime.RUNTIME_INIT)
+    @SuppressWarnings("deprecation") // RouteBuildItem only accepts a recorder proxy until the router itself is a service
     void registerProxy(
-            MailpitUiProxy recorder,
+            ServiceRegistrar reg,
             BuildProducer<RouteBuildItem> routes,
             MailpitConfig config,
-            NonApplicationRootPathBuildItem frameworkRoot,
-            CoreVertxBuildItem coreVertxBuildItem) {
+            NonApplicationRootPathBuildItem frameworkRoot) {
         if (!config.enabled()) {
             return;
         }
+
+        reg.forService(RouteHandler.class, UI_PROXY_SERVICE)
+                .require(Vertx.class)
+                .onStart((ctx, vertx) -> MailpitUiProxy.handler(vertx));
 
         routes.produce(frameworkRoot.routeBuilder()
                 .management()
                 .route(MailpitProcessor.FEATURE + "/*")
                 .displayOnNotFoundPage("Mailpit UI")
-                .handler(recorder.handler(coreVertxBuildItem.getVertx()))
+                .handler(reg.getRecorderProxy(RouteHandler.class, UI_PROXY_SERVICE))
                 .build());
     }
 

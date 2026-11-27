@@ -3,8 +3,10 @@ package io.quarkiverse.mailpit.deployment;
 import static io.quarkus.devservices.common.ContainerLocator.locateContainerWithLabels;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.jboss.jandex.AnnotationInstance;
@@ -106,7 +108,7 @@ public class MailpitProcessor {
                             return mailpit;
                         })
                         .postStartHook(this::logStarted)
-                        .configProvider(mailpitConfigProvider(index, mailpitConfig))
+                        .configProvider(exposedConfig(mailpitConfigKeys(index, mailpitConfig)))
                         .build());
     }
 
@@ -147,63 +149,66 @@ public class MailpitProcessor {
         return config;
     }
 
-    private static Map<String, Function<MailpitContainer, String>> mailpitConfigProvider(IndexView index,
-            MailpitConfig mailpitConfig) {
-        Map<String, Function<MailpitContainer, String>> providers = new HashMap<>();
-        providers.put(MailpitContainer.CONFIG_HTTP_HOST, configValue(MailpitContainer.CONFIG_HTTP_HOST));
-        providers.put(MailpitContainer.CONFIG_HTTP_PORT, configValue(MailpitContainer.CONFIG_HTTP_PORT));
-        providers.put(MailpitContainer.CONFIG_HTTP_SERVER, configValue(MailpitContainer.CONFIG_HTTP_SERVER));
-        providers.put(MailpitContainer.CONFIG_SMTP_PORT, configValue(MailpitContainer.CONFIG_SMTP_PORT));
-        providers.put("quarkus.mailer.port", configValue("quarkus.mailer.port"));
-        providers.put("quarkus.mailer.host", configValue("quarkus.mailer.host"));
-        providers.put("quarkus.mailer.mock", configValue("quarkus.mailer.mock"));
+    private static Set<String> mailpitConfigKeys(IndexView index, MailpitConfig mailpitConfig) {
+        Set<String> keys = new LinkedHashSet<>();
+        keys.add(MailpitContainer.CONFIG_HTTP_HOST);
+        keys.add(MailpitContainer.CONFIG_HTTP_PORT);
+        keys.add(MailpitContainer.CONFIG_HTTP_SERVER);
+        keys.add(MailpitContainer.CONFIG_SMTP_PORT);
+        keys.add("quarkus.mailer.port");
+        keys.add("quarkus.mailer.host");
+        keys.add("quarkus.mailer.mock");
         for (AnnotationInstance namedMailer : index.getAnnotations(MailerName.class.getName())) {
             String name = namedMailer.value().asString();
-            providers.put("quarkus.mailer." + name + ".port", configValue("quarkus.mailer." + name + ".port"));
-            providers.put("quarkus.mailer." + name + ".host", configValue("quarkus.mailer." + name + ".host"));
-            providers.put("quarkus.mailer." + name + ".mock", configValue("quarkus.mailer." + name + ".mock"));
+            keys.add("quarkus.mailer." + name + ".port");
+            keys.add("quarkus.mailer." + name + ".host");
+            keys.add("quarkus.mailer." + name + ".mock");
         }
-        addMailpitEnvConfigProviders(providers, mailpitConfig);
-        return providers;
+        addMailpitEnvConfigKeys(keys, mailpitConfig);
+        return keys;
     }
 
-    private static void addMailpitEnvConfigProviders(Map<String, Function<MailpitContainer, String>> providers,
-            MailpitConfig config) {
-        providers.put(MailpitContainer.WEBROOT, configValue(MailpitContainer.WEBROOT));
-        providers.put("MP_MAX_MESSAGES", configValue("MP_MAX_MESSAGES"));
-        providers.put("MP_SMTP_RELAY_PORT", configValue("MP_SMTP_RELAY_PORT"));
-        providers.put("MP_SMTP_RELAY_STARTTLS", configValue("MP_SMTP_RELAY_STARTTLS"));
-        providers.put("MP_SMTP_RELAY_TLS", configValue("MP_SMTP_RELAY_TLS"));
-        providers.put("MP_SMTP_RELAY_ALLOW_INSECURE", configValue("MP_SMTP_RELAY_ALLOW_INSECURE"));
-        providers.put("MP_SMTP_RELAY_AUTH", configValue("MP_SMTP_RELAY_AUTH"));
-        providers.put("MP_SMTP_RELAY_ALL", configValue("MP_SMTP_RELAY_ALL"));
+    private static void addMailpitEnvConfigKeys(Set<String> keys, MailpitConfig config) {
+        keys.add(MailpitContainer.WEBROOT);
+        keys.add("MP_MAX_MESSAGES");
+        keys.add("MP_SMTP_RELAY_PORT");
+        keys.add("MP_SMTP_RELAY_STARTTLS");
+        keys.add("MP_SMTP_RELAY_TLS");
+        keys.add("MP_SMTP_RELAY_ALLOW_INSECURE");
+        keys.add("MP_SMTP_RELAY_AUTH");
+        keys.add("MP_SMTP_RELAY_ALL");
         if (config.verbose()) {
-            providers.put("MP_VERBOSE", configValue("MP_VERBOSE"));
+            keys.add("MP_VERBOSE");
         }
         if (config.enableChaos()) {
-            providers.put("MP_ENABLE_CHAOS", configValue("MP_ENABLE_CHAOS"));
+            keys.add("MP_ENABLE_CHAOS");
         }
-        config.smtpRelayHost().ifPresent(ignored -> providers.put("MP_SMTP_RELAY_HOST", configValue("MP_SMTP_RELAY_HOST")));
-        config.smtpRelayUsername()
-                .ifPresent(ignored -> providers.put("MP_SMTP_RELAY_USERNAME", configValue("MP_SMTP_RELAY_USERNAME")));
-        config.smtpRelayPassword()
-                .ifPresent(ignored -> providers.put("MP_SMTP_RELAY_PASSWORD", configValue("MP_SMTP_RELAY_PASSWORD")));
-        config.smtpRelaySecret()
-                .ifPresent(ignored -> providers.put("MP_SMTP_RELAY_SECRET", configValue("MP_SMTP_RELAY_SECRET")));
-        config.smtpRelayReturnPath()
-                .ifPresent(ignored -> providers.put("MP_SMTP_RELAY_RETURN_PATH", configValue("MP_SMTP_RELAY_RETURN_PATH")));
-        config.smtpRelayOverrideFrom()
-                .ifPresent(ignored -> providers.put("MP_SMTP_RELAY_OVERRIDE_FROM", configValue("MP_SMTP_RELAY_OVERRIDE_FROM")));
-        config.smtpRelayAllowedRecipients().ifPresent(
-                ignored -> providers.put("MP_SMTP_RELAY_ALLOWED_RECIPIENTS", configValue("MP_SMTP_RELAY_ALLOWED_RECIPIENTS")));
-        config.smtpRelayBlockedRecipients().ifPresent(
-                ignored -> providers.put("MP_SMTP_RELAY_BLOCKED_RECIPIENTS", configValue("MP_SMTP_RELAY_BLOCKED_RECIPIENTS")));
-        config.smtpRelayMatching()
-                .ifPresent(ignored -> providers.put("MP_SMTP_RELAY_MATCHING", configValue("MP_SMTP_RELAY_MATCHING")));
+        config.smtpRelayHost().ifPresent(ignored -> keys.add("MP_SMTP_RELAY_HOST"));
+        config.smtpRelayUsername().ifPresent(ignored -> keys.add("MP_SMTP_RELAY_USERNAME"));
+        config.smtpRelayPassword().ifPresent(ignored -> keys.add("MP_SMTP_RELAY_PASSWORD"));
+        config.smtpRelaySecret().ifPresent(ignored -> keys.add("MP_SMTP_RELAY_SECRET"));
+        config.smtpRelayReturnPath().ifPresent(ignored -> keys.add("MP_SMTP_RELAY_RETURN_PATH"));
+        config.smtpRelayOverrideFrom().ifPresent(ignored -> keys.add("MP_SMTP_RELAY_OVERRIDE_FROM"));
+        config.smtpRelayAllowedRecipients().ifPresent(ignored -> keys.add("MP_SMTP_RELAY_ALLOWED_RECIPIENTS"));
+        config.smtpRelayBlockedRecipients().ifPresent(ignored -> keys.add("MP_SMTP_RELAY_BLOCKED_RECIPIENTS"));
+        config.smtpRelayMatching().ifPresent(ignored -> keys.add("MP_SMTP_RELAY_MATCHING"));
     }
 
-    private static Function<MailpitContainer, String> configValue(String key) {
-        return container -> container.getExposedConfig().get(key);
+    /**
+     * Resolves the given keys from the started container's exposed config, skipping keys without a value.
+     */
+    private static Function<MailpitContainer, Map<String, String>> exposedConfig(Set<String> keys) {
+        return container -> {
+            Map<String, String> exposed = container.getExposedConfig();
+            Map<String, String> result = new HashMap<>();
+            for (String key : keys) {
+                String value = exposed.get(key);
+                if (value != null) {
+                    result.put(key, value);
+                }
+            }
+            return result;
+        };
     }
 
 }

@@ -2,13 +2,11 @@ package io.quarkiverse.mailpit.runtime;
 
 import java.util.Locale;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 
-import io.quarkus.runtime.annotations.Recorder;
-import io.vertx.core.Handler;
+import io.quarkus.vertx.http.runtime.RouteHandler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
@@ -21,8 +19,12 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.WebClient;
 
-@Recorder
-public class MailpitUiProxy {
+/**
+ * Proxies the Mailpit web UI (HTTP and the live-event WebSocket) through the Quarkus management interface.
+ * <p>
+ * Registered as a service by {@code MailpitDevUIProcessor}; the handler is created at runtime once Vert.x is available.
+ */
+public final class MailpitUiProxy {
 
     private static final Logger log = Logger.getLogger(MailpitUiProxy.class);
 
@@ -40,10 +42,13 @@ public class MailpitUiProxy {
             HttpHeaders.UPGRADE.toString(),
             HttpHeaders.ORIGIN.toString());
 
-    public Handler<RoutingContext> handler(Supplier<Vertx> vertx) {
+    private MailpitUiProxy() {
+    }
+
+    public static RouteHandler handler(Vertx vertx) {
         final var portOptional = ConfigProvider.getConfig().getOptionalValue("mailpit.http.port", Integer.class);
-        final var client = WebClient.create(vertx.get());
-        final var webSocketClient = vertx.get().createWebSocketClient();
+        final var client = WebClient.create(vertx);
+        final var webSocketClient = vertx.createWebSocketClient();
 
         return event -> {
             if (portOptional.isEmpty()) {
@@ -87,7 +92,7 @@ public class MailpitUiProxy {
      * Open a second WebSocket towards Mailpit and relay both directions, so the live events Mailpit pushes on
      * {@code /api/events} reach the browser without a manual refresh.
      */
-    private void proxyWebSocket(WebSocketClient webSocketClient, RoutingContext event, Integer port) {
+    private static void proxyWebSocket(WebSocketClient webSocketClient, RoutingContext event, Integer port) {
         final WebSocketConnectOptions options = new WebSocketConnectOptions()
                 .setHost(LOCALHOST)
                 .setPort(port)
@@ -123,7 +128,7 @@ public class MailpitUiProxy {
         });
     }
 
-    private void relay(ServerWebSocket browser, WebSocket mailpit) {
+    private static void relay(ServerWebSocket browser, WebSocket mailpit) {
         mailpit.textMessageHandler(browser::writeTextMessage);
         mailpit.binaryMessageHandler(browser::writeBinaryMessage);
         browser.textMessageHandler(mailpit::writeTextMessage);
