@@ -251,6 +251,7 @@ public class Mailbox {
         return mapper;
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Throwable> void rethrow(Throwable x) throws T {
         throw (T) x;
     }
